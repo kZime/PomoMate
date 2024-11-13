@@ -8,6 +8,7 @@
   - Student ID: 529321
   - Github ID: kZime
 
+## PomoMate – A smart Pomodoro timer that helps you stay focused, organize tasks, and boost productivity with AI-driven suggestions.
 **Creating a rubric and uploading it to Github on time -- 5 points**  
 
 **Languages/Frameworks used -- 30 points**  
