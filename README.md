@@ -21,14 +21,13 @@
 - 5 points - Users can create a tomato clock, setting the working time and pause time.  
 - 15 points - The tomato clock can add some note, tag and category after finishing.  
 - 10 points - Logged-in users can edit and delete their previous tomato clock.  
-- 10 points  - Database contains Users, Tomato clocks, and Purchases with the necessary collections and fields to maintain the above functionality.  
+- 10 points  - Database contains Users, Tomato clocks with the necessary collections and fields to maintain the above functionality.  
 
 **Best Practices -- 5 points**  
 - 3 points - Code is readable and well formatted.  
 - 2 points - All pages pass the HTML validator.  
 
-**Creative Portion (May not finished all) -- 40 points**  
+**Creative Portion (May not finished all) -- 10 points**  
 Integrating OpenAI API to generate information for tomato clock:  
 - 10 points - Users can submit content, which is processed by OpenAI API to generate relevant tags, format the notes, and select the category.  
-- 10 points - Users can subscribe to the AI Function online.  
-- 20 points - The AI can generate some suggestions next tomato clock for the user based on the work that has already been done, and the user can choose one of the suggestions to start the next Tomato Clock  
+- 0 points - The AI can generate some suggestions next tomato clock for the user based on the work that has already been done, and the user can choose one of the suggestions to start the next Tomato Clock  
