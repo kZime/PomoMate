@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import logo from './logo.svg'; // 假设你有 logo.svg 文件
+import React, { Component } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
+import logo from "./logo.svg"; // 如果有 logo
 import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      apiResponse: '',
-      dbResponse: '',
-      username: '',
-      password: '',
-      registerMessage: '',
-      loginMessage: '',
-      showRegisterForm: false, // 新增状态，控制表单显示
-      showLoginForm: false, // 新增状态，控制表单显示
+      apiResponse: "",
+      dbResponse: "",
+      username: "",
+      password: "",
+      registerMessage: "",
+      loginMessage: "",
+      showModal: false, // 控制 Modal 是否显示
+      modalType: "login", // 控制 Modal 类型 ("login" 或 "register")
     };
   }
 
@@ -21,29 +22,41 @@ class App extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  handleRegister = (e) => {
-    e.preventDefault();
-    // 执行注册逻辑
-    this.setState({ registerMessage: 'Registration successful!' });
+  // 显示登录表单
+  openLoginModal = () => {
+    this.setState({ showModal: true, modalType: "login" });
+  };
+
+  // 显示注册表单
+  openRegisterModal = () => {
+    this.setState({ showModal: true, modalType: "register" });
+  };
+
+  // 关闭 Modal
+  closeModal = () => {
+    this.setState({ showModal: false });
   };
 
   handleLogin = (e) => {
     e.preventDefault();
-    // 执行登录逻辑
-    this.setState({ loginMessage: 'Login successful!' });
+    const { username, password } = this.state;
+    // 登录逻辑
+    // 假设你会发送 API 请求进行登录
+    this.setState({ loginMessage: "Login Success!" });
+    this.closeModal();
   };
 
-  toggleForm = (form) => {
-    // 切换显示注册表单或登录表单
-    if (form === 'register') {
-      this.setState({ showRegisterForm: true, showLoginForm: false });
-    } else if (form === 'login') {
-      this.setState({ showLoginForm: true, showRegisterForm: false });
-    }
+  handleRegister = (e) => {
+    e.preventDefault();
+    const { username, password } = this.state;
+    // 注册逻辑
+    // 假设你会发送 API 请求进行注册
+    this.setState({ registerMessage: "Registration Success!" });
+    this.closeModal();
   };
 
   render() {
-    const { apiResponse, dbResponse, username, password, registerMessage, loginMessage, showRegisterForm, showLoginForm } = this.state;
+    const { apiResponse, dbResponse, username, password, registerMessage, loginMessage, showModal, modalType } = this.state;
 
     return (
       <div className="App">
@@ -57,65 +70,62 @@ class App extends Component {
           <p>{dbResponse}</p>
         </div>
 
-        {/* 按钮切换表单 */}
-        <div>
-          <button onClick={() => this.toggleForm('register')}>Register</button>
-          <button onClick={() => this.toggleForm('login')}>Login</button>
-        </div>
+        {/* 按钮，点击后弹出登录或注册表单 */}
+        <section>
+          <Button variant="primary" onClick={this.openLoginModal}>
+            Login
+          </Button>
+          <Button variant="secondary" onClick={this.openRegisterModal}>
+            Register
+          </Button>
+        </section>
 
-        {/* 注册表单 */}
-        {showRegisterForm && (
-          <section>
-            <h2>Register</h2>
-            <form onSubmit={this.handleRegister}>
-              <label>Username:</label>
-              <input
-                type="text"
-                name="username"
-                value={username}
-                onChange={this.handleChange}
-                required
-              />
-              <label>Password:</label>
-              <input
-                type="password"
-                name="password"
-                value={password}
-                onChange={this.handleChange}
-                required
-              />
-              <button type="submit">Register</button>
-            </form>
-            <p>{registerMessage}</p>
-          </section>
-        )}
+        {/* 登录/注册的 Modal 弹窗 */}
+        <Modal show={showModal} onHide={this.closeModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>{modalType === "login" ? "Login" : "Register"}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={modalType === "login" ? this.handleLogin : this.handleRegister}>
+              <Form.Group controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter username"
+                  name="username"
+                  value={username}
+                  onChange={this.handleChange}
+                  required
+                />
+              </Form.Group>
 
-        {/* 登录表单 */}
-        {showLoginForm && (
-          <section>
-            <h2>Login</h2>
-            <form onSubmit={this.handleLogin}>
-              <label>Username:</label>
-              <input
-                type="text"
-                name="username"
-                value={username}
-                onChange={this.handleChange}
-                required
-              />
-              <label>Password:</label>
-              <input
-                type="password"
-                name="password"
-                value={password}
-                onChange={this.handleChange}
-                required
-              />
-              <button type="submit">Login</button>
-            </form>
-            <p>{loginMessage}</p>
-          </section>
-        )}
+              <Form.Group controlId="formPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Enter password"
+                  name="password"
+                  value={password}
+                  onChange={this.handleChange}
+                  required
+                />
+              </Form.Group>
+
+              <Button variant="primary" type="submit">
+                {modalType === "login" ? "Login" : "Register"}
+              </Button>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.closeModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* 提示信息 */}
+        <p>{loginMessage}</p>
+        <p>{registerMessage}</p>
       </div>
     );
   }
