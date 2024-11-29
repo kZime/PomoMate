@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { registerUser, loginUser, fetchTestAPI, fetchMongoDB } from "./apiService";
 import logo from "./logo.svg"; // 如果有 logo
 import './App.css';
 
 // PomodoroTimer
-// 番茄时钟组件
 class PomodoroTimer extends Component {
   constructor(props) {
     super(props);
@@ -99,6 +99,13 @@ class App extends Component {
     };
   }
 
+  // API 调用
+  async componentDidMount() {
+    const apiResponse = await fetchTestAPI();
+    const dbResponse = await fetchMongoDB();
+    this.setState({ apiResponse, dbResponse }); //测试输出，需要删掉，同时也要删掉render中的apiResponse和dbResponse，testapi最后也要删掉
+  }
+
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
@@ -118,21 +125,21 @@ class App extends Component {
     this.setState({ showModal: false });
   };
 
-  handleLogin = (e) => {
-    e.preventDefault();
+  handleLogin = async (event) => {
+    event.preventDefault();
     const { username, password } = this.state;
-    // 登录逻辑
-    // 假设你会发送 API 请求进行登录
-    this.setState({ loginMessage: "Login Success!" });
+
+    const result = await loginUser(username, password);
+    this.setState({ loginMessage: result.message || "Logged in successfully" });
     this.closeModal();
   };
 
-  handleRegister = (e) => {
-    e.preventDefault();
+  handleRegister = async (event) => {
+    event.preventDefault();
     const { username, password } = this.state;
-    // 注册逻辑
-    // 假设你会发送 API 请求进行注册
-    this.setState({ registerMessage: "Registration Success!" });
+
+    const result = await registerUser(username, password);
+    this.setState({ registerMessage: result.message || "Registered successfully" });
     this.closeModal();
   };
 
