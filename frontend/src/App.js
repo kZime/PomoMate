@@ -3,6 +3,87 @@ import { Modal, Button, Form } from "react-bootstrap";
 import logo from "./logo.svg"; // 如果有 logo
 import './App.css';
 
+// PomodoroTimer
+// 番茄时钟组件
+class PomodoroTimer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      time: 25 * 60, // 默认工作时间 25 分钟
+      isRunning: false, // 是否计时中
+      mode: "work", // 模式：work（工作）或 break（休息）
+    };
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (this.state.isRunning && prevState.isRunning !== this.state.isRunning) {
+      this.startTimer();
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+
+  startTimer = () => {
+    this.timer = setInterval(() => {
+      this.setState((prevState) => {
+        if (prevState.time <= 1) {
+          this.switchMode();
+          return { time: prevState.time };
+        }
+        return { time: prevState.time - 1 };
+      });
+    }, 1000);
+  };
+
+  switchMode = () => {
+    const { mode } = this.state;
+    clearInterval(this.timer);
+    this.setState({
+      mode: mode === "work" ? "break" : "work",
+      time: mode === "work" ? 5 * 60 : 25 * 60, // 切换到休息时间 5 分钟
+      isRunning: false,
+    });
+  };
+
+  toggleTimer = () => {
+    this.setState((prevState) => ({ isRunning: !prevState.isRunning }));
+  };
+
+  resetTimer = () => {
+    clearInterval(this.timer);
+    this.setState({
+      time: 25 * 60,
+      isRunning: false,
+      mode: "work",
+    });
+  };
+
+  formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  render() {
+    const { time, isRunning, mode } = this.state;
+    return (
+      <div className="pomodoro-timer">
+        <h2>{mode === "work" ? "Work Time" : "Break Time"}</h2>
+        <h1>{this.formatTime(time)}</h1>
+        <Button variant="success" onClick={this.toggleTimer}>
+          {isRunning ? "Pause" : "Start"}
+        </Button>
+        <Button variant="danger" onClick={this.resetTimer}>
+          Reset
+        </Button>
+      </div>
+    );
+  }
+}
+
+// Main App 
 class App extends Component {
   constructor(props) {
     super(props);
@@ -126,6 +207,9 @@ class App extends Component {
         {/* 提示信息 */}
         <p>{loginMessage}</p>
         <p>{registerMessage}</p>
+
+        {/* 番茄时钟 */}
+        <PomodoroTimer />
       </div>
     );
   }
