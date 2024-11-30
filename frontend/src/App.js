@@ -11,9 +11,13 @@ class PomodoroTimer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: 25 * 60, // 默认工作时间 25 分钟
+      // time: 25 * 60, // 默认工作时间 25 分钟
+      time: 2, // for testing
       isRunning: false, // 是否计时中
-      mode: "work" // 模式：work（工作）或 break（休息）
+      mode: "work", // 模式：work（工作）或 break（休息）
+      showModal: false,
+      modalType: null,
+      categories: []
     };
   }
 
@@ -44,10 +48,26 @@ class PomodoroTimer extends Component {
     clearInterval(this.timer);
     this.setState({
       mode: mode === "work" ? "break" : "work",
-      time: mode === "work" ? 5 * 60 : 25 * 60, // 切换到休息时间 5 分钟
-      isRunning: false
+      // time: mode === "work" ? 5 * 60 : 25 * 60, // 切换到休息时间 5 分钟
+      time: mode === "work" ? 1 : 2, // for testing
+      isRunning: false,
+      showModal: true,
+      modalType: "finish"
     });
   };
+
+  closeModal = () => {
+    this.setState({
+      showModal: false,
+      modalType: null
+    });
+  };
+
+  startNewMode = () => {
+    this.closeModal();
+    this.startTimer();
+  }
+
 
   toggleTimer = () => {
     this.setState((prevState) => {
@@ -74,8 +94,93 @@ class PomodoroTimer extends Component {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
+  handleCategoryModal = () => {
+    this.setState({
+      modalType: "category", // 切换到分类选择弹窗
+      showModal: true
+    });
+  };
+
+  finishingModal = () => {
+    const { showModal, mode } = this.state;
+    return (
+      <Modal show={showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>{mode === "work" ? "Break Time is over" : "Working time is over"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {mode === "work"
+            ? "Break time is over, select your next action."
+            : "Working time is over, select your next action."}
+        </Modal.Body>
+        <Modal.Footer>
+          {mode === "work" ? (
+            <>
+              <Button variant="primary" onClick={this.startNewMode}>
+                Start new task
+              </Button>
+              <Button variant="secondary" onClick={this.closeModal}>
+                Close
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="primary" onClick={this.startNewMode}>
+                Stark break
+              </Button>
+              <Button variant="primary" onClick={this.handleCategoryModal}>
+                Select a category
+              </Button>
+              <Button variant="secondary" onClick={this.closeModal}>
+                Close
+              </Button>
+            </>
+          )}
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
+  categoryModal = () => {
+    const { showModal } = this.state;
+    return (
+      <Modal show={showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select a category</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* 分类列表和新增分类按钮 */}
+          <h5>Please select a category for your task:</h5>
+          <ul>
+            {this.state.categories.map((category, index) => (
+              <li key={index}>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => this.selectCategory(category)}
+                >
+                  {category}
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <Button variant="link" onClick={this.addCategory}>
+            Add a new category
+          </Button>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={this.closeModal}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  };
+
   render() {
-    const { time, isRunning, mode } = this.state;
+    const { time, isRunning, mode, modalType } = this.state;
     return (
       <div className="pomodoro-timer">
         <h2>{mode === "work" ? "Work Time" : "Break Time"}</h2>
@@ -86,6 +191,8 @@ class PomodoroTimer extends Component {
         <Button variant="danger" onClick={this.resetTimer}>
           Reset
         </Button>
+        {modalType === "finish" && this.finishingModal()} {/* show finishing modal */}
+        {modalType === "category" && this.categoryModal()}
       </div>
     );
   }
