@@ -9,13 +9,14 @@ export const registerUser = async (username, password) => {
             body: JSON.stringify({ username, password })
         });
 
-        if (!response.ok) throw new Error("Registration failed");
-
         const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || "Registration failed");
+        }
         return data; // 返回注册成功的信息或 token
     } catch (error) {
         console.error(error);
-        return { message: "Registration error", error };
+        return { error: error.message };
     }
 };
 
@@ -28,13 +29,14 @@ export const loginUser = async (username, password) => {
             body: JSON.stringify({ username, password })
         });
 
-        if (!response.ok) throw new Error("Login failed");
-
         const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || "Login failed");
+        }
         return data; // 返回登录成功的信息或 token
     } catch (error) {
         console.error(error);
-        return { message: "Login error", error };
+        return { error: error.message };
     }
 };
 
