@@ -13,7 +13,7 @@ class PomodoroTimer extends Component {
     this.state = {
       time: 25 * 60, // 默认工作时间 25 分钟
       isRunning: false, // 是否计时中
-      mode: "work", // 模式：work（工作）或 break（休息）
+      mode: "work" // 模式：work（工作）或 break（休息）
     };
   }
 
@@ -45,12 +45,18 @@ class PomodoroTimer extends Component {
     this.setState({
       mode: mode === "work" ? "break" : "work",
       time: mode === "work" ? 5 * 60 : 25 * 60, // 切换到休息时间 5 分钟
-      isRunning: false,
+      isRunning: false
     });
   };
 
   toggleTimer = () => {
-    this.setState((prevState) => ({ isRunning: !prevState.isRunning }));
+    this.setState((prevState) => {
+      if (prevState.isRunning) {
+        // 暂停计时
+        clearInterval(this.timer);
+      }
+      return { isRunning: !prevState.isRunning }; // 切换状态
+    });
   };
 
   resetTimer = () => {
