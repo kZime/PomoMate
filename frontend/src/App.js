@@ -17,7 +17,8 @@ class PomodoroTimer extends Component {
       mode: "work", // 模式：work（工作）或 break（休息）
       showModal: false,
       modalType: null,
-      categories: []
+      categories: [],
+      showLoginAlert: false,
     };
   }
 
@@ -102,7 +103,8 @@ class PomodoroTimer extends Component {
   };
 
   finishingModal = () => {
-    const { showModal, mode } = this.state;
+    const { showModal, mode, showLoginAlert } = this.state;
+    const { loggedIn } = this.props;
     return (
       <Modal show={showModal} onHide={this.closeModal}>
         <Modal.Header closeButton>
@@ -112,6 +114,11 @@ class PomodoroTimer extends Component {
           {mode === "work"
             ? "Break time is over, select your next action."
             : "Working time is over, select your next action."}
+          {showLoginAlert && !loggedIn && (
+            <div className="alert alert-warning mt-3">
+              You need to login to use this feature.
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
           {mode === "work" ? (
@@ -128,7 +135,15 @@ class PomodoroTimer extends Component {
               <Button variant="primary" onClick={this.startNewMode}>
                 Stark break
               </Button>
-              <Button variant="primary" onClick={this.handleCategoryModal}>
+              <Button variant="primary"
+                onClick={() => {
+                  if (!loggedIn) {
+                    this.setState({ showLoginAlert: true });  // 显示警告
+                  } else {
+                    this.handleCategoryModal();  // 执行选择分类的功能
+                  }
+                }}
+              >
                 Select a category
               </Button>
               <Button variant="secondary" onClick={this.closeModal}>
@@ -163,8 +178,8 @@ class PomodoroTimer extends Component {
               </li>
             ))}
           </ul>
-          <Button variant="link" onClick={this.addCategory}>
-            Add a new category
+          <Button variant="primary" onClick={this.addCategory}>
+            +
           </Button>
         </Modal.Body>
         <Modal.Footer>
@@ -336,8 +351,79 @@ class App extends Component {
     }
   };
 
+  showAccountModal = () => {
+    const { showModal, modalType, loginMessage, registerMessage, username, password } = this.state;
+    return (
+      // 登录/注册的 Modal 弹窗
+      < Modal show={showModal} onHide={this.closeModal} >
+        <Modal.Header closeButton>
+          <Modal.Title>{modalType === "login" ? "Login" : "Register"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* 显示登录或注册的消息 */}
+          {modalType === "login" && loginMessage && (
+            <div className="alert alert-info">{loginMessage}</div>
+          )}
+          {modalType === "register" && registerMessage && (
+            <div className="alert alert-info">{registerMessage}</div>
+          )}
+
+          <Form onSubmit={modalType === "login" ? this.handleLogin : this.handleRegister}>
+            <Form.Group controlId="formUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter username"
+                name="username"
+                value={username}
+                onChange={this.handleChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter password"
+                name="password"
+                value={password}
+                onChange={this.handleChange}
+                required
+              />
+            </Form.Group>
+
+            {/* 仅在注册时显示重复密码输入框 */}
+            {modalType === "register" && (
+              <Form.Group controlId="formConfirmPassword">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Re-enter password"
+                  name="confirmPassword"
+                  value={this.state.confirmPassword} // 确认密码的状态
+                  onChange={this.handleChange}
+                  required
+                />
+              </Form.Group>
+            )}
+
+            <Button variant="primary" type="submit">
+              {modalType === "login" ? "Login" : "Register"}
+            </Button>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={this.closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal >
+    )
+  }
+
   render() {
-    const { apiResponse, dbResponse, username, password, registerMessage, loginMessage, showModal, modalType, loggedIn, user } = this.state;
+    const { apiResponse, dbResponse, loggedIn, user } = this.state;
 
     return (
       <div className="App">
@@ -352,7 +438,6 @@ class App extends Component {
           <p>{dbResponse}</p>
         </div>
 
-        {/* 按钮，点击后弹出登录或注册表单 */}
         <section>
           {loggedIn ? (
             <>
@@ -372,75 +457,14 @@ class App extends Component {
           )}
         </section>
 
+        {/* 按钮，点击后弹出登录或注册表单 */}
+        {this.showAccountModal()}
 
-        {/* 登录/注册的 Modal 弹窗 */}
-        <Modal show={showModal} onHide={this.closeModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>{modalType === "login" ? "Login" : "Register"}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {/* 显示登录或注册的消息 */}
-            {modalType === "login" && loginMessage && (
-              <div className="alert alert-info">{loginMessage}</div>
-            )}
-            {modalType === "register" && registerMessage && (
-              <div className="alert alert-info">{registerMessage}</div>
-            )}
-
-            <Form onSubmit={modalType === "login" ? this.handleLogin : this.handleRegister}>
-              <Form.Group controlId="formUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter username"
-                  name="username"
-                  value={username}
-                  onChange={this.handleChange}
-                  required
-                />
-              </Form.Group>
-
-              <Form.Group controlId="formPassword">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter password"
-                  name="password"
-                  value={password}
-                  onChange={this.handleChange}
-                  required
-                />
-              </Form.Group>
-
-              {/* 仅在注册时显示重复密码输入框 */}
-              {modalType === "register" && (
-                <Form.Group controlId="formConfirmPassword">
-                  <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Re-enter password"
-                    name="confirmPassword"
-                    value={this.state.confirmPassword} // 确认密码的状态
-                    onChange={this.handleChange}
-                    required
-                  />
-                </Form.Group>
-              )}
-
-              <Button variant="primary" type="submit">
-                {modalType === "login" ? "Login" : "Register"}
-              </Button>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.closeModal}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
 
         {/* 番茄时钟 */}
-        <PomodoroTimer />
+        <PomodoroTimer
+          loggedIn={this.state.loggedIn}
+        />
       </div>
     );
   }
