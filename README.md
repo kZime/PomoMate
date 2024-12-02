@@ -45,3 +45,15 @@ Integrating OpenAI API to generate information for tomato clock:
 1. Clone the repositorie to your local machine.
 2. Install the required dependencies by running `npm install` in both `./client` and `./backend` directory.
 3. Start the backend server by running `npm start` in both `./client` and `./backend` directory.
+
+## TODO
+
+### 1. backend
+
+- [ ] insert data to database, history, category, tag, user
+
+### 2. frontend
+
+- [ ] category
+- [ ] history
+- [ ] edit message after finish pomodoro
