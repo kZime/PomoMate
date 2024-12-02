@@ -4,6 +4,7 @@ import { registerUser, loginUser, fetchTestAPI, fetchMongoDB } from "./apiServic
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
 import PomodoroTimer from "./PomodoroTimer";
+import TaskList from "./TaskList";
 
 
 // Main App
@@ -217,6 +218,8 @@ const App = () => {
       <PomodoroTimer
         loggedIn={loggedIn}
       />
+
+      <TaskList/>
     </div>
   );
 };

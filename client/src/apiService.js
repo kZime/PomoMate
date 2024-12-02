@@ -40,6 +40,23 @@ export const loginUser = async (username, password) => {
     }
 };
 
+// Task Api
+export const fetchUserTasks = async () => {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`, // 携带 JWT token
+        },
+    });
+
+    const data = await response.json();
+    console.log(data);
+};
+
+
+
 // 获取测试 API
 export const fetchTestAPI = async () => {
     try {

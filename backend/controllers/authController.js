@@ -67,4 +67,36 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+const authenticateTcoken = async (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1]; // 获取 Bearer Token
+
+    if (!token) {
+        return res.status(401).json({ message: 'Token is missing' });
+    }
+
+    try {
+        const user = jwt.verify(token, 'your_secret_key'); // 替换为实际密钥
+        req.user = user; // 将解码后的用户信息存入 req
+        next();
+    } catch (error) {
+        return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+};
+
+// 控制器：查询用户任务
+const getTasks = async (req, res) => {
+    try {
+        const userId = req.user.userId; // 从 token 解码信息中获取用户 ID
+        const user = await User.findById(userId, 'tasks'); // 查询任务字段
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ tasks: user.tasks }); // 返回任务数据
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+module.exports = { register, login, authenticateTcoken, getTasks };

@@ -11,6 +11,7 @@ const testAPIRouter = require("./routes/testAPI");
 const mongoDBRouter = require("./routes/mongoDB");
 const registerRouter = require("./routes/register");
 const loginRouter = require("./routes/login");
+const tasksRouter = require("./routes/tasks");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/testAPI", testAPIRouter);
 app.use("/mongoDB", mongoDBRouter);
 app.use("/register", registerRouter);
 app.use("/login", loginRouter);
+app.use("/tasks", tasksRouter);
 
 
 // catch 404 and forward to error handler
