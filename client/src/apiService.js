@@ -49,8 +49,7 @@ export const fetchUserTasks = async () => {
     // 获取 token
     const token = localStorage.getItem('token');
 
-    // 发起请求
-    const response = await fetch('/api/tasks', {
+    const response = await fetch('${API_BASE_URL}/getTasks', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`, // 携带 JWT token
@@ -65,7 +64,7 @@ export const fetchUserTasks = async () => {
 export const addTask = async (category, detail) => {
     const token = localStorage.getItem('token'); // 获取存储的 token
   
-    const response = await fetch('/api/tasks/add', {
+    const response = await fetch('${API_BASE_URL}/addTasks', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

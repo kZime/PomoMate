@@ -99,4 +99,37 @@ const getTasks = async (req, res) => {
     }
 };
 
-module.exports = { register, login, authenticateTcoken, getTasks };
+// 添加任务
+const addTask = async (req, res) => {
+    try {
+      const userId = req.user._id; // 从中间件解码 token 中获取用户 ID
+      const { category, detail } = req.body;
+  
+      if (!category || !detail) {
+        return res.status(400).json({ success: false, message: 'Category and detail are required.' });
+      }
+  
+      // 查找用户并更新任务
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+  
+      // 添加任务到用户的 tasks 列表
+      const newTask = {
+        category,
+        detail,
+        completionTime: null, // 默认完成时间为 null
+      };
+  
+      user.tasks.push(newTask);
+      await user.save();
+  
+      res.status(201).json({ success: true, message: 'Task added successfully.', task: newTask });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  };
+
+module.exports = { register, login, authenticateTcoken, getTasks, addTask };
