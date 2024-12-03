@@ -1,5 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Modal,
+  Navbar,
+  Nav,
+  Button,
+  Form,
+  Alert,
+  Card,
+} from "react-bootstrap";
+
 import {
   registerUser,
   loginUser,
@@ -153,51 +165,56 @@ const App = () => {
           <div className="alert alert-info">{registerMessage}</div>
         )}
 
-        <Form onSubmit={modalType === "login" ? handleLogin : handleRegister}>
-          <Form.Group controlId="formUsername">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter username"
-              name="username"
-              value={username}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
+        <Form.Group controlId="formUsername">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter username"
+            name="username"
+            value={username}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-          <Form.Group controlId="formPassword">
-            <Form.Label>Password</Form.Label>
+        <Form.Group controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Enter password"
+            name="password"
+            value={password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        {modalType === "register" && (
+          <Form.Group controlId="formConfirmPassword">
+            <Form.Label>Confirm Password</Form.Label>
             <Form.Control
               type="password"
-              placeholder="Enter password"
-              name="password"
-              value={password}
+              placeholder="Re-enter password"
+              name="confirmPassword"
+              value={confirmPassword}
               onChange={handleChange}
               required
             />
           </Form.Group>
-
-          {modalType === "register" && (
-            <Form.Group controlId="formConfirmPassword">
-              <Form.Label>Confirm Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Re-enter password"
-                name="confirmPassword"
-                value={confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
-          )}
-
-          <Button variant="primary" type="submit">
-            {modalType === "login" ? "Login" : "Register"}
-          </Button>
-        </Form>
+        )}
       </Modal.Body>
       <Modal.Footer>
+        {/* register */}
+        {modalType === "login" ? (
+          <Button variant="primary" onClick={handleLogin}>
+            Login
+          </Button>
+        ) : (
+          <Button variant="primary" onClick={handleRegister}>
+            Register
+          </Button>
+        )}
+
         <Button variant="secondary" onClick={closeModal}>
           Close
         </Button>
@@ -207,47 +224,94 @@ const App = () => {
 
   return (
     <div className="App">
-      <div className="App-intro">
-        <p>{apiResponse}</p>
-        <p>{dbResponse}</p>
-      </div>
+      {/* 导航栏，包含应用品牌和导航链接 */}
+      <Navbar bg="dark" variant="dark" expand="lg">
+        <Container fluid>
+          <Navbar.Brand href="#home">Pomodoro App</Navbar.Brand>
+          <Navbar.Toggle aria-controls="navbar-nav" />
+          <Navbar.Collapse id="navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="#home">Home</Nav.Link>
+              {loggedIn && <Nav.Link href="#tasks">Tasks</Nav.Link>}
+            </Nav>
+            <Nav>
+              {loggedIn ? (
+                <Button variant="outline-light" onClick={handleLogout}>
+                  Logout
+                </Button>
+              ) : (
+                // 渲染登录和注册按钮
+                <>
+                  <Button
+                    variant="outline-light"
+                    onClick={openLoginModal}
+                    className="me-2"
+                  >
+                    Login
+                  </Button>
+                  <Button variant="light" onClick={openRegisterModal}>
+                    Register
+                  </Button>
+                </>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
-      <section>
-        {loggedIn ? (
-          <>
-            <p>Welcome, {user.username}!</p>
-            <Button variant="secondary" onClick={handleLogout}>
-              Logout
+      {/* 主内容区域 */}
+      <Container fluid className="container-wrapper">
+        {/* API 和数据库响应信息 */}
+        <Row className="mb-4">
+          <Col>
+            <Alert variant="info">
+              <p>{apiResponse}</p>
+              <p>{dbResponse}</p>
+            </Alert>
+          </Col>
+        </Row>
+
+        {/* Pomodoro Timer */}
+        <Col className="mb-4">
+          <Card className="mb-4">
+            <Card.Body>
+              <Card.Title>Pomodoro Timer</Card.Title>
+              <PomodoroTimer
+                loggedIn={loggedIn}
+                detectNewTask={setRefreshList}
+              />
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Task List */}
+        <Col className="mb-4">
+          <Card className="mb-4">
+            <Card.Body>
+              <Card.Title>Task List</Card.Title>
+              <TaskList refreshList={refreshList} />
+            </Card.Body>
+          </Card>
+        </Col>
+        {showAccountModal()}
+
+        {/* 测试消息按钮 */}
+        <Row>
+          <Col className="text-center">
+            <Button
+              variant="primary"
+              onClick={() =>
+                showMessage({
+                  type: "success",
+                  message: "This is a success message!",
+                })
+              }
+            >
+              Show Message
             </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="primary" onClick={openLoginModal}>
-              Login
-            </Button>
-            <Button variant="secondary" onClick={openRegisterModal}>
-              Register
-            </Button>
-          </>
-        )}
-      </section>
-
-      {showAccountModal()}
-
-      <PomodoroTimer loggedIn={loggedIn} detectNewTask={setRefreshList} />
-
-      <TaskList refreshList={refreshList} />
-      {/* DEBUG: 测试消息按钮 */}
-      <Button
-        onClick={() =>
-          showMessage({
-            type: "success",
-            message: "This is a success message!",
-          })
-        }
-      >
-        Show Message
-      </Button>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };

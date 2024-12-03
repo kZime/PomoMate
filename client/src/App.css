@@ -1,57 +1,68 @@
+/* 移除根元素的宽度限制，让整个页面更加灵活地占据全屏宽度 */
 #root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
+  /* 让文本左对齐 */
+}
+
+/* 针对 .container-wrapper 进行适当的调整以保证流式布局 */
+.container-wrapper {
+  padding: 2rem;
+  /* 保留一定的内边距以避免内容太贴近边缘 */
+}
+
+/* 保持 logo 和按钮等的原样式 */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+
+  to {
+    transform: rotate(360deg);
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
   }
-  .logo.react:hover {
-    filter: drop-shadow(0 0 2em #61dafbaa);
-  }
-  
-  @keyframes logo-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  @media (prefers-reduced-motion: no-preference) {
-    a:nth-of-type(2) .logo {
-      animation: logo-spin infinite 20s linear;
-    }
-  }
-  
-  .card {
-    padding: 2em;
-  }
-  
-  .read-the-docs {
-    color: #888;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  th {
-    background-color: #f4f4f4;
-  }
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* 居中 */
+  margin: 0 auto;
+}
+
+.read-the-docs {
+  color: #888;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* 按钮组的样式 */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  /* 增加按钮之间的间距 */
+  margin-top: 1.5rem;
+}
