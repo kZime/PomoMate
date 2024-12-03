@@ -113,6 +113,8 @@ const addTask = async (req, res) => {
       // 查找用户并更新任务
       const user = await User.findById(userId);
       if (!user) {
+        // DEBUG: 如果用户不存在，则返回错误信息
+        console.log("req.user:", req.user);
         return res.status(404).json({ success: false, message: 'User not found.' });
       }
   

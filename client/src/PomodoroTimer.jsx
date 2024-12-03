@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Modal, Button, InputGroup, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useMessage } from "./message/MessageContext";
+import { addTask } from "./tasks/taskAPIService";
 
 // PomodoroTimer
 const PomodoroTimer = ({ loggedIn }) => {
@@ -153,6 +154,24 @@ const PomodoroTimer = ({ loggedIn }) => {
   const [categories, setCategories] = useState(["Work", "Study", "Exercise"]); // DEBUG: 默认分类
   const [selectedCategory, setSelectedCategory] = useState(categories[0]); // 默认选中第一个分类
   const [newCategoryContent, setNewCategoryContent] = useState("");
+  const [taskDetail, setTaskDetail] = useState("");
+
+  const handleSaveTask = async () => {
+    const result = await addTask(selectedCategory, taskDetail);
+    if (result.success) {
+      // if success, show message
+      showMessage({
+        type: "success",
+        message: "Task saved successfully!",
+      });
+    } else {
+      // if failed, show message
+      showMessage({
+        type: "error",
+        message: result.message,
+      });
+    }
+  };
 
   const taskModal = () => (
     <Modal show={showModal} onHide={closeModal}>
@@ -218,13 +237,15 @@ const PomodoroTimer = ({ loggedIn }) => {
 
         {/* 添加Task 信息 */}
 
-        <InputGroup>
+        <InputGroup onChange={(e) => setTaskDetail(e.target.value)}>
           <Form.Control placeholder="Task Detail" />
         </InputGroup>
       </Modal.Body>
       <Modal.Footer>
         {/* Save Button */}
-        <Button variant="success">Save</Button>
+        <Button variant="success" onClick={handleSaveTask}>
+          Save
+        </Button>
 
         <Button variant="secondary" onClick={closeModal}>
           Close

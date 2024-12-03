@@ -37,15 +37,21 @@ export const fetchUserTasks = async () => {
 export const addTask = async (category, detail) => {
     const token = localStorage.getItem('token'); // 获取存储的 token
   
-    const response = await fetch(`${API_BASE_URL}/addTask`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ category, detail }) // 将任务数据作为请求体发送
-    });
-  
-    const data = await response.json();
-    console.log(data); // 处理返回的数据
-  };
+    try {
+      const response = await fetch(`${API_BASE_URL}/addTask`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ category, detail }), // 将任务数据作为请求体发送
+      });
+
+      const data = await response.json();
+      console.log(data); // 处理返回的数据
+      return { success: true, message: "Task added successfully!" };
+    } catch (error) {
+      console.error('Error adding task:', error);
+      return { success: false, message: 'Failed to add task.' };
+  }
+};
