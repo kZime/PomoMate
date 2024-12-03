@@ -5,16 +5,21 @@ const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null); // 用于跟踪展开的类别
   const [categoryDetails, setCategoryDetails] = useState({}); // 存储展开类别的详情
+  const [errorMessage, setErrorMessage] = useState('');
 
   // 获取任务数据
   const fetchTasks = async () => {
-    try {
-      const data = await fetchUserTasks(); // 调用 apiService 中的函数
-      setTasks(data); // 将任务数据保存到 state 中
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
+    const result = await fetchUserTasks();
+
+        if (result.error) {
+            // 如果出错，设置错误信息
+            setErrorMessage(result.message);
+        } else {
+            // 否则设置任务列表
+            setTasks(result.tasks);
+        }
   };
+
 
   // 在组件加载时调用 fetchTasks
   useEffect(() => {
@@ -51,34 +56,41 @@ const TaskList = () => {
   // 渲染任务列表
   return (
     <div>
-      {tasks.length === 0 ? (
-        <p>No tasks available.</p>
-      ) : (
-        <div>
-          {categories.map(category => (
-            <div key={category}>
-              <h3>
-                {category} ({tasks.filter(task => task.category === category).length} tasks)
-                <button onClick={() => handleCategoryToggle(category)}>
-                  {expandedCategory === category ? 'Hide Details' : 'Show Details'}
-                </button>
-              </h3>
-              {expandedCategory === category && categoryDetails[category] && (
-                <div>
-                  {categoryDetails[category].map(task => (
-                    <div key={task._id}> {/* 使用任务的 _id 作为 key */}
-                      <p><strong>Task:</strong> {task.detail}</p>
-                      <p><strong>Completion Time:</strong> {task.completionTime}</p>
+        {errorMessage ? (
+            <p style={{ color: 'red' }}>{errorMessage}</p> // 显示错误提示
+        ) : (
+            <div>
+                {tasks.length === 0 ? (
+                    <p>No tasks available.</p> // 没有任务时的提示
+                ) : (
+                  <div>
+                  {categories.map(category => (
+                    <div key={category}>
+                      <h3>
+                        {category} ({tasks.filter(task => task.category === category).length} tasks)
+                        <button onClick={() => handleCategoryToggle(category)}>
+                          {expandedCategory === category ? 'Hide Details' : 'Show Details'}
+                        </button>
+                      </h3>
+                      {expandedCategory === category && categoryDetails[category] && (
+                        <div>
+                          {categoryDetails[category].map(task => (
+                            <div key={task._id}> {/* 使用任务的 _id 作为 key */}
+                              <p><strong>Task:</strong> {task.detail}</p>
+                              <p><strong>Completion Time:</strong> {task.completionTime}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-              )}
+                )}
             </div>
-          ))}
-        </div>
-      )}
+        )}
     </div>
-  );
+);
 };
+
 
 export default TaskList;

@@ -75,7 +75,8 @@ const authenticateTcoken = async (req, res, next) => {
     }
 
     try {
-        const user = jwt.verify(token, 'your_secret_key'); // 替换为实际密钥
+        const secretKey = process.env.JWT_SECRET_KEY;
+        const user = jwt.verify(token, secretKey); // 替换为实际密钥
         req.user = user; // 将解码后的用户信息存入 req
         next();
     } catch (error) {
