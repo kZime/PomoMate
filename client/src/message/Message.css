@@ -1,0 +1,50 @@
+/* src/components/Message/Message.css */
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2018;
+    opacity: 1;
+    transition: top 0.5s, opacity 0.5s ease-out;
+}
+
+.message--info {
+    background-color: #409eff;
+    color: white;
+}
+
+.message--success {
+    background-color: #67c23a;
+    color: white;
+}
+
+.message--warning {
+    background-color: #e6a23c;
+    color: white;
+}
+
+.message--error {
+    background-color: #f56c6c;
+    color: white;
+}
+
+.message__icon {
+    margin-right: 10px;
+}
+
+.message__close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+    outline: none;
+}

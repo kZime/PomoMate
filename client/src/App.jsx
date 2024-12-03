@@ -1,11 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { registerUser, loginUser, fetchTestAPI, fetchMongoDB } from "./apiService";
-import './App.css';
-import { jwtDecode } from 'jwt-decode';
+import {
+  registerUser,
+  loginUser,
+  fetchTestAPI,
+  fetchMongoDB,
+} from "./apiService";
+import "./App.css";
+import { jwtDecode } from "jwt-decode";
 import PomodoroTimer from "./PomodoroTimer";
 import TaskList from "./TaskList";
-
+import { useMessage } from "./message/MessageContext";
 
 // Main App
 const App = () => {
@@ -23,17 +28,19 @@ const App = () => {
   const [refreshList, setRefreshList] = useState(""); // 存储任务列表
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setLoggedIn(false);
     handleRefreshList("logout");
-  },[]);
+  }, []);
 
   const autoLogout = useCallback(() => {
     if (checkTokenExpiration()) {
       handleLogout();
     }
-  },[handleLogout]);
+  }, [handleLogout]);
+
+  const { showMessage } = useMessage();
 
   // 每次页面加载时触发
   useEffect(() => {
@@ -47,23 +54,20 @@ const App = () => {
     fetchData();
 
     // 获取用户信息
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
 
     if (token && user) {
       setLoggedIn(true);
       setUser(user);
     }
 
-    // 检测是否要自动登出
-    autoLogout();
-
-    console.log("Updated")
-  }, [refreshList, autoLogout]); 
+    console.log("Updated");
+  }, [refreshList, autoLogout]);
   // 触发条件：页面加载
 
   const handleRefreshList = async (action) => {
-    setRefreshList(action)
+    setRefreshList(action);
   };
 
   // 处理输入框变化
@@ -103,19 +107,18 @@ const App = () => {
     }
     const token = result.token;
     if (token) {
-      localStorage.setItem('token', token);
+      localStorage.setItem("token", token);
       const decodedToken = jwtDecode(token);
       const user = {
         userId: decodedToken.userId,
-        username: decodedToken.username
+        username: decodedToken.username,
       };
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
       setLoggedIn(true);
     }
     closeModal();
     handleRefreshList("login");
   };
-
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -132,7 +135,7 @@ const App = () => {
   };
 
   const checkTokenExpiration = () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) return false;
 
     const decodedToken = jwtDecode(token);
@@ -140,12 +143,12 @@ const App = () => {
     return decodedToken.exp < currentTime;
   };
 
-
-
   const showAccountModal = () => (
     <Modal show={showModal} onHide={closeModal}>
       <Modal.Header closeButton>
-        <Modal.Title>{modalType === "login" ? "Login" : "Register"}</Modal.Title>
+        <Modal.Title>
+          {modalType === "login" ? "Login" : "Register"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {modalType === "login" && loginMessage && (
@@ -218,7 +221,9 @@ const App = () => {
         {loggedIn ? (
           <>
             <p>Welcome, {user.username}!</p>
-            <Button variant="secondary" onClick={handleLogout}>Logout</Button>
+            <Button variant="secondary" onClick={handleLogout}>
+              Logout
+            </Button>
           </>
         ) : (
           <>
@@ -234,13 +239,20 @@ const App = () => {
 
       {showAccountModal()}
 
-      <PomodoroTimer
-        loggedIn={loggedIn}
-      />
+      <PomodoroTimer loggedIn={loggedIn} />
 
-      <TaskList
-        refreshList={refreshList}
-      />
+      <TaskList refreshList={refreshList} />
+      {/* DEBUG: 测试消息按钮 */}
+      <Button
+        onClick={() =>
+          showMessage({
+            type: "success",
+            message: "This is a success message!",
+          })
+        }
+      >
+        Show Message
+      </Button>
     </div>
   );
 };

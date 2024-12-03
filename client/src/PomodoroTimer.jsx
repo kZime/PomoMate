@@ -1,22 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Button } from "react-bootstrap";
-import PropTypes from 'prop-types';
+import { Modal, Button, InputGroup, Form } from "react-bootstrap";
+import PropTypes from "prop-types";
+import { useMessage } from "./message/MessageContext";
 
 // PomodoroTimer
 const PomodoroTimer = ({ loggedIn }) => {
-
   // Default state values
   const [time, setTime] = useState(2); // TODO: Default to 2 for testing
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("work");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
-  const [categories, setCategories] = useState([]);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const timerRef = useRef(null); // Timer reference
-
-
-  
+  const { showMessage } = useMessage();
   // 只在 isRunning 变化时启动或清除计时器
   useEffect(() => {
     if (isRunning) {
@@ -28,13 +25,10 @@ const PomodoroTimer = ({ loggedIn }) => {
     return () => clearInterval(timerRef.current);
   }, [isRunning]); // 触发条件
 
-
-
-
   const startTimer = () => {
     clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setTime(prevTime => {
+      setTime((prevTime) => {
         if (prevTime <= 1) {
           // 当时间结束时停止计时器
           clearInterval(timerRef.current);
@@ -63,13 +57,13 @@ const PomodoroTimer = ({ loggedIn }) => {
     // 根据用户选择的模式切换状态
     setMode(newMode);
     setTime(newMode === "work" ? 2 : 1); // DEBUG: 使用测试时间
-    
+
     // 触发计时器
     setIsRunning(true);
   };
 
   const toggleTimer = () => {
-    setIsRunning(prevIsRunning => {
+    setIsRunning((prevIsRunning) => {
       if (prevIsRunning) {
         clearInterval(timerRef.current);
       }
@@ -87,7 +81,7 @@ const PomodoroTimer = ({ loggedIn }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
   const handleCategoryModal = () => {
@@ -98,7 +92,9 @@ const PomodoroTimer = ({ loggedIn }) => {
   const finishingModal = () => (
     <Modal show={showModal} onHide={closeModal}>
       <Modal.Header closeButton>
-        <Modal.Title>{mode === "work" ? "Work Time is over" : "Break Time is over"}</Modal.Title>
+        <Modal.Title>
+          {mode === "work" ? "Work Time is over" : "Break Time is over"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {mode === "work"
@@ -127,12 +123,13 @@ const PomodoroTimer = ({ loggedIn }) => {
             <Button variant="primary" onClick={() => startNewMode("work")}>
               Start new task
             </Button>
-            <Button variant="primary"
+            <Button
+              variant="primary"
               onClick={() => {
                 if (!loggedIn) {
-                  setShowLoginAlert(true);  // Show warning
+                  setShowLoginAlert(true); // Show warning
                 } else {
-                  handleCategoryModal();  // Execute select category functionality
+                  handleCategoryModal(); // Execute select category functionality
                 }
               }}
             >
@@ -147,34 +144,89 @@ const PomodoroTimer = ({ loggedIn }) => {
     </Modal>
   );
 
-  const categoryModal = () => (
+  const showTaskModal = () => {
+    setModalType("task");
+    setShowModal(true);
+  };
+
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [categories, setCategories] = useState(["Work", "Study", "Exercise"]); // DEBUG: 默认分类
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]); // 默认选中第一个分类
+  const [newCategoryContent, setNewCategoryContent] = useState("");
+
+  const taskModal = () => (
     <Modal show={showModal} onHide={closeModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Select a category</Modal.Title>
+        <Modal.Title>Edit Task</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h5>Please select a category for your task:</h5>
-        <ul>
+        <h5>Please edit your task:</h5>
+        {/* 显示所有现有类别的单选按钮 */}
+        <Form.Select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">Select a category</option>
           {categories.map((category, index) => (
-            <li key={index}>
-              <Button
-                variant="outline-primary"
-                onClick={() => selectCategory(category)}
-              >
-                {category}
-              </Button>
-            </li>
+            <option key={index} value={category}>
+              {category}
+            </option>
           ))}
-        </ul>
-        <Button variant="primary" onClick={addCategory}>
-          +
+        </Form.Select>
+
+        <Button
+          variant="primary"
+          onClick={() => setShowNewCategory(!showNewCategory)}
+        >
+          Add New Category
         </Button>
+
+        {/* DEBUG: 测试消息 */}
+        <Button
+          variant="info"
+          onClick={() =>
+            showMessage({
+              type: "success",
+              message: "This is a success message!",
+            })
+          }
+        >
+          Show Message
+        </Button>
+
+        {/* 按加号时，增加一个输入框添加新类别 */}
+        {showNewCategory && (
+          <InputGroup>
+            <Form.Control
+              placeholder="New Category"
+              onChange={(e) => setNewCategoryContent(e.target.value)}
+            />
+            <Button
+              variant="outline-secondary"
+              onClick={() => {
+                setShowNewCategory(false);
+                setCategories([...categories, newCategoryContent]);
+              }}
+            >
+              Add
+            </Button>
+          </InputGroup>
+        )}
+
+        {/* 分割线 */}
+        <hr />
+
+        {/* 添加Task 信息 */}
+
+        <InputGroup>
+          <Form.Control placeholder="Task Detail" />
+        </InputGroup>
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={closeModal}
-        >
+        {/* Save Button */}
+        <Button variant="success">Save</Button>
+
+        <Button variant="secondary" onClick={closeModal}>
           Close
         </Button>
       </Modal.Footer>
@@ -191,8 +243,11 @@ const PomodoroTimer = ({ loggedIn }) => {
       <Button variant="danger" onClick={resetTimer}>
         Reset
       </Button>
+      <Button variant="info" onClick={() => showTaskModal()}>
+        Edit Task
+      </Button>
       {modalType === "finish" && finishingModal()} {/* show finishing modal */}
-      {modalType === "category" && categoryModal()}
+      {modalType === "task" && taskModal()}
     </div>
   );
 };
