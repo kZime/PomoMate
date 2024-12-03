@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { registerUser, loginUser, fetchUserTasks, fetchTestAPI, fetchMongoDB } from "./apiService";
+import { registerUser, loginUser, fetchTestAPI, fetchMongoDB } from "./apiService";
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
 import PomodoroTimer from "./PomodoroTimer";
@@ -20,13 +20,13 @@ const App = () => {
   const [modalType, setModalType] = useState("login"); // 控制 Modal 类型 ("login" 或 "register")
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState({}); // 存储用户信息
-  const [tasksResult, setTasksResult] = useState([]); // 存储任务列表
+  const [refreshList, setRefreshList] = useState(""); // 存储任务列表
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setLoggedIn(false);
-    fetchTasks();
+    handleRefreshList("logout");
   },[]);
 
   const autoLogout = useCallback(() => {
@@ -59,20 +59,11 @@ const App = () => {
     autoLogout();
 
     console.log("Updated")
-  }, [tasksResult, autoLogout]); 
+  }, [refreshList, autoLogout]); 
   // 触发条件：页面加载
 
-  const fetchTasks = async () => {
-    const result = await fetchUserTasks();
-
-        if (result.error) {
-            // 如果出错，设置错误信息
-            setTasksResult(result.message);
-        } else {
-            // 否则设置任务列表
-            setTasksResult(result.tasks);
-        }
-        console.log("fetchTasks run:", result);
+  const handleRefreshList = async (action) => {
+    setRefreshList(action)
   };
 
   // 处理输入框变化
@@ -122,7 +113,7 @@ const App = () => {
       setLoggedIn(true);
     }
     closeModal();
-    fetchTasks();
+    handleRefreshList("login");
   };
 
 
@@ -248,7 +239,7 @@ const App = () => {
       />
 
       <TaskList
-        tasksResult={tasksResult}
+        refreshList={refreshList}
       />
     </div>
   );

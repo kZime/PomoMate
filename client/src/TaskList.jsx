@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { fetchUserTasks } from "./apiService";
 import PropTypes from 'prop-types';
 
-const TaskList = ({ tasksResult }) => {
+const TaskList = ({ refreshList }) => {
   // console.log("New tasksResult received:", tasksResult);
   const [tasks, setTasks] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null); // 用于跟踪展开的类别
@@ -29,7 +29,7 @@ const TaskList = ({ tasksResult }) => {
   useEffect(() => {
     fetchTasks();
     // console.log("Updated task list because of new tasksResult")
-  }, [tasksResult]); // 空依赖数组，表示只在组件挂载时执行一次
+  }, [refreshList]); // 空依赖数组，表示只在组件挂载时执行一次
 
   // 计算类别列表，使用 useMemo 优化
   const categories = useMemo(() => {
@@ -99,11 +99,7 @@ const TaskList = ({ tasksResult }) => {
 };
 
 TaskList.propTypes = {
-  tasksResult: PropTypes.shape({
-    tasks: PropTypes.array,
-    error: PropTypes.bool,
-    message: PropTypes.string,
-  }).isRequired
+  refreshList: PropTypes.string.isRequired
 };
 
 export default TaskList;
