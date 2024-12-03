@@ -66,3 +66,21 @@
   /* 增加按钮之间的间距 */
   margin-top: 1.5rem;
 }
+
+
+/* Task List Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
