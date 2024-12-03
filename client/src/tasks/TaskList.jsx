@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { fetchUserTasks } from "./apiService";
+import { fetchUserTasks } from "./taskAPIService";
 import PropTypes from 'prop-types';
 
 const TaskList = ({ refreshList }) => {

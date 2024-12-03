@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
-import {addTask} from "./apiService";
+import {addTask} from "./taskAPIService";
 import PropTypes from 'prop-types';
 
 const TaskDetailAdd = ({ category, showModal, setShowModal }) => {

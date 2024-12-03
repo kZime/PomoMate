@@ -9,7 +9,7 @@ import {
 import "./App.css";
 import { jwtDecode } from "jwt-decode";
 import PomodoroTimer from "./PomodoroTimer";
-import TaskList from "./TaskList";
+import TaskList from "./tasks/TaskList";
 import { useMessage } from "./message/MessageContext";
 
 // Main App
