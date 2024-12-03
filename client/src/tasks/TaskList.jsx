@@ -42,6 +42,16 @@ const TaskList = ({ refreshList }) => {
     }, []);
   }, [tasks]);
 
+  const dateFormat = ( isoDate ) => {
+    const date = new Date(isoDate);
+
+  const options = { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' };
+  const [month, day, year] = new Intl.DateTimeFormat('en-US', options).format(date).split('/');
+
+  const formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+  }
+
   // 切换类别的展开与收起
   const handleCategoryToggle = (category) => {
     if (expandedCategory === category) {
@@ -80,12 +90,22 @@ const TaskList = ({ refreshList }) => {
                       </h3>
                       {expandedCategory === category && categoryDetails[category] && (
                         <div>
-                          {categoryDetails[category].map(task => (
-                            <div key={task._id}> {/* 使用任务的 _id 作为 key */}
-                              <p><strong>Task:</strong> {task.detail}</p>
-                              <p><strong>Completion Time:</strong> {task.completionTime}</p>
-                            </div>
-                          ))}
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Task</th>
+                                <th>Completion Time</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {categoryDetails[category].map(task => (
+                                <tr key={task._id}>
+                                  <td>{task.detail}</td>
+                                  <td>{dateFormat(task.completedAt)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       )}
                     </div>
