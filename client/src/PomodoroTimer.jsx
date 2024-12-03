@@ -112,6 +112,7 @@ const PomodoroTimer = ({ loggedIn }) => {
       </Modal.Body>
       <Modal.Footer>
         {mode === "work" ? (
+          // work time is over
           <>
             <Button variant="primary" onClick={() => startNewMode("break")}>
               Start break
@@ -121,6 +122,7 @@ const PomodoroTimer = ({ loggedIn }) => {
             </Button>
           </>
         ) : (
+          // break time is over
           <>
             <Button variant="primary" onClick={() => startNewMode("work")}>
               Start new task

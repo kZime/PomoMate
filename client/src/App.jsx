@@ -22,6 +22,7 @@ const App = () => {
   const [user, setUser] = useState({}); // 存储用户信息
 
 
+  // 每次页面加载时触发
   useEffect(() => {
     // 获取API和数据库连接状态
     const fetchData = async () => {
@@ -41,11 +42,13 @@ const App = () => {
       setUser(user);
     }
 
-    // 自动登出
+    // 检测是否要自动登出
     autoLogout();
   }, []); 
   // 触发条件：页面加载
 
+
+  // 处理输入框变化
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "username") setUsername(value);
@@ -72,6 +75,7 @@ const App = () => {
     setConfirmPassword("");
   };
 
+  // 处理登录
   const handleLogin = async (event) => {
     event.preventDefault();
     const result = await loginUser(username, password);
@@ -92,6 +96,7 @@ const App = () => {
     }
     closeModal();
   };
+
 
   const handleRegister = async (event) => {
     event.preventDefault();
