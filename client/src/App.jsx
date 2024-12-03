@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { registerUser, loginUser, fetchTestAPI, fetchMongoDB } from "./apiService";
+import { registerUser, loginUser, fetchUserTasks, fetchTestAPI, fetchMongoDB } from "./apiService";
 import './App.css';
 import { jwtDecode } from 'jwt-decode';
 import PomodoroTimer from "./PomodoroTimer";
@@ -20,7 +20,20 @@ const App = () => {
   const [modalType, setModalType] = useState("login"); // 控制 Modal 类型 ("login" 或 "register")
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState({}); // 存储用户信息
+  const [tasksResult, setTasksResult] = useState([]); // 存储任务列表
 
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setLoggedIn(false);
+    fetchTasks();
+  },[]);
+
+  const autoLogout = useCallback(() => {
+    if (checkTokenExpiration()) {
+      handleLogout();
+    }
+  },[handleLogout]);
 
   // 每次页面加载时触发
   useEffect(() => {
@@ -44,9 +57,23 @@ const App = () => {
 
     // 检测是否要自动登出
     autoLogout();
-  }, []); 
+
+    console.log("Updated")
+  }, [tasksResult, autoLogout]); 
   // 触发条件：页面加载
 
+  const fetchTasks = async () => {
+    const result = await fetchUserTasks();
+
+        if (result.error) {
+            // 如果出错，设置错误信息
+            setTasksResult(result.message);
+        } else {
+            // 否则设置任务列表
+            setTasksResult(result.tasks);
+        }
+        console.log("fetchTasks run:", result);
+  };
 
   // 处理输入框变化
   const handleChange = (e) => {
@@ -95,6 +122,7 @@ const App = () => {
       setLoggedIn(true);
     }
     closeModal();
+    fetchTasks();
   };
 
 
@@ -112,12 +140,6 @@ const App = () => {
     closeModal();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setLoggedIn(false);
-  };
-
   const checkTokenExpiration = () => {
     const token = localStorage.getItem('token');
     if (!token) return false;
@@ -127,11 +149,7 @@ const App = () => {
     return decodedToken.exp < currentTime;
   };
 
-  const autoLogout = () => {
-    if (checkTokenExpiration()) {
-      handleLogout();
-    }
-  };
+
 
   const showAccountModal = () => (
     <Modal show={showModal} onHide={closeModal}>
@@ -229,7 +247,9 @@ const App = () => {
         loggedIn={loggedIn}
       />
 
-      <TaskList/>
+      <TaskList
+        tasksResult={tasksResult}
+      />
     </div>
   );
 };

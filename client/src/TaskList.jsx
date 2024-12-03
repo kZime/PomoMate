@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchUserTasks } from "./apiService";
+import PropTypes from 'prop-types';
 
-const TaskList = () => {
+const TaskList = ({ tasksResult }) => {
+  // console.log("New tasksResult received:", tasksResult);
   const [tasks, setTasks] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null); // 用于跟踪展开的类别
   const [categoryDetails, setCategoryDetails] = useState({}); // 存储展开类别的详情
@@ -14,9 +16,11 @@ const TaskList = () => {
         if (result.error) {
             // 如果出错，设置错误信息
             setErrorMessage(result.message);
+            setTasks([]);
         } else {
             // 否则设置任务列表
             setTasks(result.tasks);
+            setErrorMessage('');
         }
   };
 
@@ -24,10 +28,12 @@ const TaskList = () => {
   // 在组件加载时调用 fetchTasks
   useEffect(() => {
     fetchTasks();
-  }, []); // 空依赖数组，表示只在组件挂载时执行一次
+    // console.log("Updated task list because of new tasksResult")
+  }, [tasksResult]); // 空依赖数组，表示只在组件挂载时执行一次
 
   // 计算类别列表，使用 useMemo 优化
   const categories = useMemo(() => {
+    // console.log("Calculating categories...")
     return tasks.reduce((categories, task) => {
       if (!categories.includes(task.category)) {
         categories.push(task.category);
@@ -92,5 +98,12 @@ const TaskList = () => {
 );
 };
 
+TaskList.propTypes = {
+  tasksResult: PropTypes.shape({
+    tasks: PropTypes.array,
+    error: PropTypes.bool,
+    message: PropTypes.string,
+  }).isRequired
+};
 
 export default TaskList;
