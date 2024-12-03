@@ -16,12 +16,14 @@ const App = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [registerMessage, setRegisterMessage] = useState("");
   const [loginMessage, setLoginMessage] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("login");
+  const [showModal, setShowModal] = useState(false); // 控制 Modal 是否显示
+  const [modalType, setModalType] = useState("login"); // 控制 Modal 类型 ("login" 或 "register")
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({}); // 存储用户信息
+
 
   useEffect(() => {
+    // 获取API和数据库连接状态
     const fetchData = async () => {
       const apiResp = await fetchTestAPI();
       const dbResp = await fetchMongoDB();
@@ -30,6 +32,7 @@ const App = () => {
     };
     fetchData();
 
+    // 获取用户信息
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
@@ -38,8 +41,10 @@ const App = () => {
       setUser(user);
     }
 
+    // 自动登出
     autoLogout();
-  }, []);
+  }, []); 
+  // 触发条件：页面加载
 
   const handleChange = (e) => {
     const { name, value } = e.target;
