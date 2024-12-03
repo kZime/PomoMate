@@ -11,7 +11,7 @@
   - Student ID: 529321
   - Github ID: kZime
 
-## PomoMate – A smart Pomodoro timer that helps you stay focused, organize tasks, and boost productivity with AI-driven suggestions.
+## PomoMate – A smart Pomodoro timer that helps you stay focused, organize tasks, and boost productivity with AI-driven suggestions
 
 **Creating a rubric and uploading it to Github on time -- 5 points**
 
@@ -50,10 +50,17 @@ Integrating OpenAI API to generate information for tomato clock:
 
 ### 1. backend
 
-- [ ] insert data to database, history, category, tag, user
+- [x] 1.1 insert user to database
+- [x] 1.2 insert task to database
+- [ ] 1.3 edit task
+- [ ] 1.4 openai api, generate new task suggestion
 
 ### 2. frontend
 
-- [ ] category
-- [ ] history
-- [ ] edit message after finish pomodoro
+- [x] 2.1 show task history
+- [ ] 2.2 get existing tasks category from backend
+- [ ] 2.3 edit message after finish pomodoro
+- [ ] 2.4 new submit task logic:
+  - save in frontend, submit to backend after finish pomodoro
+- [ ] 2.5 openai api, generate new task suggestion
+- [ ] 2.6 *(Optional) Split the page into two parts: Pomodoro Timer Homepage and Task List Page*
