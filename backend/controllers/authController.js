@@ -100,10 +100,12 @@ const getTasks = async (req, res) => {
     }
 };
 
+const mongoose = require('mongoose');
+
 // 添加任务
 const addTask = async (req, res) => {
     try {
-      const userId = req.user._id; // 从中间件解码 token 中获取用户 ID
+      const userId = new mongoose.Types.ObjectId(req.user.userId); 
       const { category, detail } = req.body;
   
       if (!category || !detail) {
