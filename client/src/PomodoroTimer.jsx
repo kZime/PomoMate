@@ -5,7 +5,7 @@ import { useMessage } from "./message/MessageContext";
 import { addTask } from "./tasks/taskAPIService";
 
 // PomodoroTimer
-const PomodoroTimer = ({ loggedIn }) => {
+const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
   // Default state values
   const [time, setTime] = useState(2); // TODO: Default to 2 for testing
   const [isRunning, setIsRunning] = useState(false);
@@ -15,6 +15,12 @@ const PomodoroTimer = ({ loggedIn }) => {
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const timerRef = useRef(null); // Timer reference
   const { showMessage } = useMessage();
+  const [getNewTask, setGetNewTask] = useState("newTask1") 
+
+
+  const refreshList = () => {
+    setGetNewTask(getNewTask === "newTask1" ? "newTask2" : "newTask1");
+  }
   // 只在 isRunning 变化时启动或清除计时器
   useEffect(() => {
     if (isRunning) {
@@ -25,6 +31,10 @@ const PomodoroTimer = ({ loggedIn }) => {
     // 在组件卸载时清除计时器
     return () => clearInterval(timerRef.current);
   }, [isRunning]); // 触发条件
+
+  useEffect(() => {
+    detectNewTask(getNewTask);
+  }, [getNewTask, detectNewTask]);
 
   const startTimer = () => {
     clearInterval(timerRef.current);
@@ -171,6 +181,8 @@ const PomodoroTimer = ({ loggedIn }) => {
         message: result.message,
       });
     }
+    refreshList()
+    closeModal();
   };
 
   const taskModal = () => (
@@ -275,6 +287,7 @@ const PomodoroTimer = ({ loggedIn }) => {
 
 PomodoroTimer.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
+  detectNewTask: PropTypes.func.isRequired,
 };
 
 export default PomodoroTimer;

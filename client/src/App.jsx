@@ -31,7 +31,7 @@ const App = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setLoggedIn(false);
-    handleRefreshList("logout");
+    setRefreshList("logout");
   }, []);
 
   const autoLogout = useCallback(() => {
@@ -64,11 +64,6 @@ const App = () => {
 
     console.log("Updated");
   }, [refreshList, autoLogout]);
-  // 触发条件：页面加载
-
-  const handleRefreshList = async (action) => {
-    setRefreshList(action);
-  };
 
   // 处理输入框变化
   const handleChange = (e) => {
@@ -117,7 +112,7 @@ const App = () => {
       setLoggedIn(true);
     }
     closeModal();
-    handleRefreshList("login");
+    setRefreshList("login");
   };
 
   const handleRegister = async (event) => {
@@ -239,7 +234,7 @@ const App = () => {
 
       {showAccountModal()}
 
-      <PomodoroTimer loggedIn={loggedIn} />
+      <PomodoroTimer loggedIn={loggedIn} detectNewTask={setRefreshList} />
 
       <TaskList refreshList={refreshList} />
       {/* DEBUG: 测试消息按钮 */}
