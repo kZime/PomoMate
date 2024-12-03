@@ -40,7 +40,7 @@ export const loginUser = async (username, password) => {
     }
 };
 
-// Task Api
+// Get Task Api
 export const fetchUserTasks = async () => {
     const token = localStorage.getItem('token');
 
@@ -54,6 +54,23 @@ export const fetchUserTasks = async () => {
     const data = await response.json();
     console.log(data);
 };
+
+// Save Task Api
+export const addTask = async (category, detail) => {
+    const token = localStorage.getItem('token'); // 获取存储的 token
+  
+    const response = await fetch('/api/tasks/add', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ category, detail }) // 将任务数据作为请求体发送
+    });
+  
+    const data = await response.json();
+    console.log(data); // 处理返回的数据
+  };
 
 
 
