@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
 
-dotenv.config(); // 初始化 dotenv 配置
+dotenv.config(); // initialize dotenv
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-// 注册逻辑
+// register controller
 export const register = async (req, res) => {
     const { username, password } = req.body;
 
@@ -31,7 +31,7 @@ export const register = async (req, res) => {
     }
 };
 
-// 登录逻辑
+// login controller
 export const login = async (req, res) => {
     const { username, password } = req.body;
 
@@ -40,26 +40,26 @@ export const login = async (req, res) => {
     }
 
     try {
-        // 查找用户
+        // find user by username
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // 验证密码
+        // compare password
         const isPasswordValid = await bcrypt.compare(password, user.hashed_password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid password" });
         }
 
-        // 密钥从环境变量中获取
-        const secretKey = process.env.JWT_SECRET_KEY; // 确保你已经在环境变量中设置了这个值
+        // get secret key from environment variable
+        const secretKey = process.env.JWT_SECRET_KEY; // replace with actual secret key
 
         if (!secretKey) {
             return res.status(500).json({ message: "Internal server error: Secret key is missing" });
         }
 
-        // 生成JWT token
+        // generate JWT token
         const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: "30d" });
 
         res.status(200).json({ message: "Login successful", token });
@@ -70,7 +70,7 @@ export const login = async (req, res) => {
 };
 
 export const authenticateTcoken = async (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1]; // 获取 Bearer Token
+    const token = req.headers['authorization']?.split(' ')[1]; // get Bearer Token
 
     if (!token) {
         return res.status(401).json({ message: 'Token is missing' });
@@ -78,8 +78,8 @@ export const authenticateTcoken = async (req, res, next) => {
 
     try {
         const secretKey = process.env.JWT_SECRET_KEY;
-        const user = jwt.verify(token, secretKey); // 替换为实际密钥
-        req.user = user; // 将解码后的用户信息存入 req
+        const user = jwt.verify(token, secretKey); // replace to real password
+        req.user = user; 
         next();
     } catch (error) {
         return res.status(403).json({ message: 'Invalid or expired token' });

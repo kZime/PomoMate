@@ -72,7 +72,7 @@ const PomodoroTimer = ({
 
     // 根据用户选择的模式切换状态
     setMode(newMode);
-    setTime(newMode === "work" ? 3 : 3); // DEBUG: 使用测试时间
+    setTime(formatTimerLengthToSecond()); // DEBUG: 使用测试时间
 
     // 触发计时器
     setIsRunning(true);

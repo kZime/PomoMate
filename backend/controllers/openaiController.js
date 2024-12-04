@@ -8,10 +8,8 @@ const client = new OpenAI({
 
 export const predictTask = async (req, res) => {
     try {
-        // 获取用户 ID
         const userId = new mongoose.Types.ObjectId(req.user.userId);
 
-        // 获取用户任务
         const tasks = await getUserTasks(userId);
 
         // 只保留 category, detail 和 completedAt
@@ -24,10 +22,9 @@ export const predictTask = async (req, res) => {
         const currentTime = new Date().toISOString();
 
         // DEBUG
-        console.log(tasks_content);
-        console.log(currentTime);
+        // console.log(tasks_content);
+        // console.log(currentTime);
 
-        // 生成 Prompt
         const prompt = `The current time is ${currentTime}. 
         Here is my history of tasks: ${JSON.stringify(tasks_content)}. 
         Please predict my next task.
@@ -42,7 +39,6 @@ export const predictTask = async (req, res) => {
             "predictReason": ""
         }`;
 
-        // 调用 OpenAI API
         const chatCompletion = await client.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [{ role: "user", content: prompt }],

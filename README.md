@@ -25,7 +25,7 @@
 
 - 10 points - Users can register, login, and logout.
 - 5 points - Users can create a tomato clock, setting the working time and pause time.
-- 15 points - The tomato clock can add some note, tag and category after finishing.
+- 15 points - The tomato clock can add some note, tag or category after finishing.
 - 10 points - Logged-in users can edit and delete their previous tomato clock.
 - 10 points - Database contains Users, Tomato clocks with the necessary collections and fields to maintain the above functionality.
 
@@ -53,7 +53,7 @@ Integrating OpenAI API to generate information for tomato clock:
 - [x] 1.1 insert user to database
 - [x] 1.2 insert task to database
 - [x] 1.3 edit task
-- [ ] 1.4 openai api, generate new task suggestion
+- [x] 1.4 openai api, generate new task suggestion
 
 ### 2. frontend
 
@@ -62,6 +62,4 @@ Integrating OpenAI API to generate information for tomato clock:
 - [x] 2.3 edit message after finish pomodoro
 - [x] 2.4 new submit task logic:
   - save in frontend, submit to backend after finish pomodoro
-- [ ] 2.5 openai api, generate new task suggestion
-- [ ] 2.6 *(Optional) Split the page into two parts: Pomodoro Timer Homepage and Task List Page*
-- [ ] 2.7 FIX BUG: table in TaskList
+- [x] 2.5 openai api, generate new task suggestion
