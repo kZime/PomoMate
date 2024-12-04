@@ -17,10 +17,21 @@ const CurrentTaskView = ({
   // if (!currentTask.category && !currentTask.detail) {
   //   return <p>No current task selected.</p>;
   // }
+  // 加载分类数据
   useEffect(() => {
-    fetchExistingCategories().then((categories) => {
-      setCategories(categories);
-    });
+    fetchExistingCategories()
+      .then((fetchedCategories) => {
+        if (Array.isArray(fetchedCategories)) {
+          setCategories(fetchedCategories);
+        } else {
+          console.error("Invalid categories fetched:", fetchedCategories);
+          setCategories([]); // 如果数据无效，设置为空数组
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+        setCategories([]); // 如果发生错误，设置为空数组
+      });
   }, []);
 
   return (

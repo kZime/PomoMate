@@ -1,24 +1,37 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import mongoose from "mongoose";
 
-const express = require("express");
+// 初始化 dotenv 配置
+dotenv.config();
+
 const router = express.Router();
-const mongoose = require("mongoose");
+
 // Variable to be sent to Frontend with Database status
 let databaseConnection = "Waiting for Database response...";
-router.get("/", function (req, res, next) {
+
+// 路由：返回数据库连接状态
+router.get("/", (req, res) => {
     res.send(databaseConnection);
 });
-// Connecting to MongoDB
+
+// 从环境变量中读取 MongoDB URI
 const mongoURI = process.env.MONGO_URI;
-mongoose.connect(mongoURI);
-// If there is a connection error send an error message
-mongoose.connection.on("error", error => {
-    console.log("Database connection error:", error);
-    databaseConnection = "Error connecting to Database";
-});
-// If connected to MongoDB send a success message
-mongoose.connection.once("open", () => {
-    console.log("Connected to Database!");
-    databaseConnection = "Connected to Database";
-});
-module.exports = router;
+
+if (!mongoURI) {
+    console.error("MONGO_URI is not defined in the environment variables.");
+    databaseConnection = "MONGO_URI is missing. Please check environment configuration.";
+} else {
+    // 连接到 MongoDB
+    mongoose.connect(mongoURI)
+        .then(() => {
+            console.log("Connected to Database!");
+            databaseConnection = "Connected to Database";
+        })
+        .catch((error) => {
+            console.error("Database connection error:", error);
+            databaseConnection = "Error connecting to Database";
+        });
+}
+
+export default router;

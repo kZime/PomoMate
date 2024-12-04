@@ -82,7 +82,7 @@ const App = () => {
       // setUser(user);
     }
 
-    console.log("Updated");
+    // console.log("Updated");
   }, [refreshList, autoLogout]);
 
   // 处理输入框变化
@@ -257,7 +257,7 @@ const App = () => {
         detail: resultObj.detail,
       });
       // DEBUG
-      console.log("Current task is:", currentTask);
+      // console.log("Current task is:", currentTask);
     } catch (error) {
       // 显示错误消息
       showMessage({
@@ -334,6 +334,7 @@ const App = () => {
               </Card.Body>
             </Card>
           </Col>
+          {loggedIn && (
           <Col>
             <Card className="mb-4">
               <Card.Body>
@@ -352,6 +353,7 @@ const App = () => {
               </Card.Body>
             </Card>
           </Col>
+          )}
         </Row>
 
         {/* Task List */}

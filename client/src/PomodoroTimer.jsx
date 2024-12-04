@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, InputGroup, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useMessage } from "./message/MessageContext";
 import { addTask } from "./tasks/taskAPIService";
@@ -87,9 +87,16 @@ const PomodoroTimer = ({
     });
   };
 
+  const [timerLength, setTimerLength] = useState("25:00");
+
+  const formatTimerLengthToSecond = () => {
+    const [mins, secs] = timerLength.split(":");
+    return parseInt(mins) * 60 + parseInt(secs);
+  };
+
   const resetTimer = () => {
     clearInterval(timerRef.current);
-    setTime(25 * 60);
+    setTime(formatTimerLengthToSecond());
     setIsRunning(false);
     setMode("work");
   };
@@ -130,9 +137,9 @@ const PomodoroTimer = ({
                 if (success) {
                   startNewMode("work");
                   closeModal();
-                  console.log("handleSaveTask success");
+                  // console.log("handleSaveTask success");
                 } else {
-                  console.log("handleSaveTask failed");
+                  // console.log("handleSaveTask failed");
                 }
               }}
             >
@@ -157,9 +164,9 @@ const PomodoroTimer = ({
                 if (success) {
                   startNewMode("work");
                   closeModal();
-                  console.log("handleSaveTask success");
+                  // console.log("handleSaveTask success");
                 } else {
-                  console.log("handleSaveTask failed");
+                  // console.log("handleSaveTask failed");
                 }
               }}
             >
@@ -191,7 +198,7 @@ const PomodoroTimer = ({
       return false;
     }
 
-    console.log("handleSaveTask keep going");
+    // console.log("handleSaveTask keep going");
 
     const result = await addTask(currentTask.category, currentTask.detail);
     if (result.success) {
@@ -218,12 +225,23 @@ const PomodoroTimer = ({
     <div className="pomodoro-timer">
       <h2>{mode === "work" ? "Work Time" : "Break Time"}</h2>
       <h1>{formatTime(time)}</h1>
-      <Button variant="success" onClick={toggleTimer}>
+      <Button variant={isRunning ? "info" : "success"} onClick={toggleTimer}>
         {isRunning ? "Pause" : "Start"}
       </Button>
       <Button variant="danger" onClick={resetTimer}>
         Reset
       </Button>
+      <InputGroup>
+        <InputGroup.Text>new timer length:</InputGroup.Text>
+
+        <Form.Control
+          placeholder={timerLength}
+          onChange={(e) => {
+              setTimerLength(e.target.value);
+              console.log("update timerLength to:", timerLength);
+          }}
+        />
+      </InputGroup>
       {modalType === "finish" && finishingModal()} {/* show finishing modal */}
     </div>
   );

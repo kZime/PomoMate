@@ -4,7 +4,7 @@ const API_BASE_URL = "http://localhost:9000";
 export const registerUser = async (username, password) => {
     try {
         // 发起注册请求
-        const response = await fetch(`${API_BASE_URL}/register`, {
+        const response = await fetch(`${API_BASE_URL}/api/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -26,7 +26,7 @@ export const registerUser = async (username, password) => {
 export const loginUser = async (username, password) => {
     try {
         // 发起登录请求
-        const response = await fetch(`${API_BASE_URL}/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -46,7 +46,7 @@ export const loginUser = async (username, password) => {
 
 export const askForNextTask = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/openai`, {
+    const response = await fetch(`${API_BASE_URL}/api/openai/predictTask`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ export const askForNextTask = async () => {
 export const fetchTestAPI = async () => {
     try {
         // 发起测试请求
-        const response = await fetch(`${API_BASE_URL}/testAPI`);
+        const response = await fetch(`${API_BASE_URL}/test`);
         if (!response.ok) throw new Error("Failed to fetch API");
         return await response.text();
     } catch (error) {
@@ -76,7 +76,7 @@ export const fetchTestAPI = async () => {
 export const fetchMongoDB = async () => {
     try {
         // 发起数据库连接请求
-        const response = await fetch(`${API_BASE_URL}/mongoDB`);
+        const response = await fetch(`${API_BASE_URL}/mongodb`);
         if (!response.ok) throw new Error("Failed to connect to MongoDB");
         return await response.text();
     } catch (error) {

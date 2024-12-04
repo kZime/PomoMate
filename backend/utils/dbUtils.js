@@ -1,12 +1,10 @@
-const User = require("../models/User");
+import User from "../models/User.js"; // 使用 ES Modules 的 import 语法
 
-
-
-
-// get user tasks
-const getUserTasks = async (userId) => {
-    const user = await User.findById(userId, 'tasks');
+// 获取用户任务
+export const getUserTasks = async (userId) => {
+    const user = await User.findById(userId, "tasks");
+    if (!user) {
+        throw new Error("User not found");
+    }
     return user.tasks;
 };
-
-module.exports = { getUserTasks };

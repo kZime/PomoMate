@@ -11,7 +11,7 @@ export const fetchUserTasks = async () => {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/getTasks`, {
+        const response = await fetch(`${API_BASE_URL}/api/task/get`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`, // 携带 JWT token
@@ -48,7 +48,7 @@ export const addTask = async (category, detail) => {
     const token = localStorage.getItem('token'); // 获取存储的 token
   
     try {
-      const response = await fetch(`${API_BASE_URL}/addTask`, {
+      const response = await fetch(`${API_BASE_URL}/api/task/add`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,7 +71,7 @@ export const editTask = async (taskId, category, detail) => {
     console.log("using editTask function") 
 
     try {
-        const response = await fetch(`${API_BASE_URL}/editTask`, {
+        const response = await fetch(`${API_BASE_URL}/api/task/edit`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export const deleteTask = async (taskId) => {
     const token = localStorage.getItem('token'); // 获取存储的 token
 
     try{
-        const response = await fetch(`${API_BASE_URL}/deleteTask`, {
+        const response = await fetch(`${API_BASE_URL}/api/task/delete`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
