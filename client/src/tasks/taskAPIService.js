@@ -57,7 +57,8 @@ export const addTask = async (category, detail) => {
 };
 
 export const editTask = async (taskId, category, detail) => {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
+    console.log("using editTask function") 
 
     try {
         const response = await fetch(`${API_BASE_URL}/editTask`, {

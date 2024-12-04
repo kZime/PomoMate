@@ -14,6 +14,7 @@ const loginRouter = require("./routes/login");
 const getTasksRouter = require("./routes/getTasks");
 const addTaskRouter = require("./routes/addTask");
 const deleteTaskRouter = require("./routes/deleteTask");
+const editTaskRouter = require("./routes/editTask");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/login", loginRouter);
 app.use("/getTasks", getTasksRouter);
 app.use("/addTask", addTaskRouter);
 app.use("/deleteTask", deleteTaskRouter);
+app.use("/editTask", editTaskRouter);
 
 
 // catch 404 and forward to error handler
