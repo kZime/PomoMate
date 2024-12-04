@@ -1,26 +1,31 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Button, InputGroup, Form } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useMessage } from "./message/MessageContext";
 import { addTask } from "./tasks/taskAPIService";
 
 // PomodoroTimer
-const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
+const PomodoroTimer = ({
+  loggedIn,
+  detectNewTask,
+
+  // 从 App 中获取 当前的 Task 的两个信息
+  currentTask,
+  setCurrentTask,
+}) => {
   // Default state values
   const [time, setTime] = useState(2); // TODO: Default to 2 for testing
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("work");
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(null);
-  const [showLoginAlert, setShowLoginAlert] = useState(false);
   const timerRef = useRef(null); // Timer reference
   const { showMessage } = useMessage();
-  const [getNewTask, setGetNewTask] = useState("newTask1") 
-
+  const [getNewTask, setGetNewTask] = useState("newTask1");
 
   const refreshList = () => {
     setGetNewTask(getNewTask === "newTask1" ? "newTask2" : "newTask1");
-  }
+  };
   // 只在 isRunning 变化时启动或清除计时器
   useEffect(() => {
     if (isRunning) {
@@ -67,7 +72,7 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
 
     // 根据用户选择的模式切换状态
     setMode(newMode);
-    setTime(newMode === "work" ? 2 : 1); // DEBUG: 使用测试时间
+    setTime(newMode === "work" ? 3 : 3); // DEBUG: 使用测试时间
 
     // 触发计时器
     setIsRunning(true);
@@ -95,11 +100,7 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  const handleCategoryModal = () => {
-    setModalType("category");
-    setShowModal(true);
-  };
-
+  // mode == work or break
   const finishingModal = () => (
     <Modal show={showModal} onHide={closeModal}>
       <Modal.Header closeButton>
@@ -111,7 +112,7 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
         {mode === "work"
           ? "Work time is over, select your next action."
           : "Break time is over, select your next action."}
-        {showLoginAlert && !loggedIn && (
+        {!loggedIn && (
           <div className="alert alert-warning mt-3">
             You need to login to use this feature.
           </div>
@@ -121,6 +122,23 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
         {mode === "work" ? (
           // work time is over
           <>
+            {/* 提交任务并跳过休息时间 */}
+            <Button
+              variant="success"
+              onClick={async () => {
+                const success = await handleSaveTask();
+                if (success) {
+                  startNewMode("work");
+                  closeModal();
+                  console.log("handleSaveTask success");
+                } else {
+                  console.log("handleSaveTask failed");
+                }
+              }}
+            >
+              Submit task and start new Task
+            </Button>
+            {/* 开始休息时间 */}
             <Button variant="primary" onClick={() => startNewMode("break")}>
               Start break
             </Button>
@@ -130,21 +148,26 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
           </>
         ) : (
           // break time is over
+          // mode == break
           <>
-            <Button variant="primary" onClick={() => startNewMode("work")}>
-              Start new task
-            </Button>
             <Button
-              variant="primary"
-              onClick={() => {
-                if (!loggedIn) {
-                  setShowLoginAlert(true); // Show warning
+              variant="success"
+              onClick={async () => {
+                const success = await handleSaveTask();
+                if (success) {
+                  startNewMode("work");
+                  closeModal();
+                  console.log("handleSaveTask success");
                 } else {
-                  handleCategoryModal(); // Execute select category functionality
+                  console.log("handleSaveTask failed");
                 }
               }}
             >
-              Select a category
+              Start new task and save task
+            </Button>
+            {/* Break again! */}
+            <Button variant="primary" onClick={() => startNewMode("break")}>
+              Break again!
             </Button>
             <Button variant="secondary" onClick={closeModal}>
               Close
@@ -155,19 +178,22 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
     </Modal>
   );
 
-  const showTaskModal = () => {
-    setModalType("task");
-    setShowModal(true);
-  };
-
-  const [showNewCategory, setShowNewCategory] = useState(false);
-  const [categories, setCategories] = useState(["Work", "Study", "Exercise"]); // DEBUG: 默认分类
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]); // 默认选中第一个分类
-  const [newCategoryContent, setNewCategoryContent] = useState("");
-  const [taskDetail, setTaskDetail] = useState("");
+  // 存在前端的 新的 Task 的两个信息
 
   const handleSaveTask = async () => {
-    const result = await addTask(selectedCategory, taskDetail);
+    // 如果当前任务为空，则不保存
+    if (!currentTask.category || !currentTask.detail) {
+      showMessage({
+        type: "error",
+        message:
+          "Task was submitted or not edited. Please close this modal, edit Current Task and try again.",
+      });
+      return false;
+    }
+
+    console.log("handleSaveTask keep going");
+
+    const result = await addTask(currentTask.category, currentTask.detail);
     if (result.success) {
       // if success, show message
       showMessage({
@@ -181,90 +207,12 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
         message: result.message,
       });
     }
-    refreshList()
-    closeModal();
+    // 清除当前任务
+    setCurrentTask({ category: "", detail: "" });
+
+    refreshList();
+    return result.success;
   };
-
-  const taskModal = () => (
-    <Modal show={showModal} onHide={closeModal}>
-      <Modal.Header closeButton>
-        <Modal.Title>Edit Task</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h5>Please edit your task:</h5>
-        {/* 显示所有现有类别的单选按钮 */}
-        <Form.Select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="">Select a category</option>
-          {categories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
-            </option>
-          ))}
-        </Form.Select>
-
-        <Button
-          variant="primary"
-          onClick={() => setShowNewCategory(!showNewCategory)}
-        >
-          Add New Category
-        </Button>
-
-        {/* DEBUG: 测试消息 */}
-        <Button
-          variant="info"
-          onClick={() =>
-            showMessage({
-              type: "success",
-              message: "This is a success message!",
-            })
-          }
-        >
-          Show Message
-        </Button>
-
-        {/* 按加号时，增加一个输入框添加新类别 */}
-        {showNewCategory && (
-          <InputGroup>
-            <Form.Control
-              placeholder="New Category"
-              onChange={(e) => setNewCategoryContent(e.target.value)}
-            />
-            <Button
-              variant="outline-secondary"
-              onClick={() => {
-                setShowNewCategory(false);
-                setCategories([...categories, newCategoryContent]);
-              }}
-            >
-              Add
-            </Button>
-          </InputGroup>
-        )}
-
-        {/* 分割线 */}
-        <hr />
-
-        {/* 添加Task 信息 */}
-
-        <InputGroup onChange={(e) => setTaskDetail(e.target.value)}>
-          <Form.Control placeholder="Task Detail" />
-        </InputGroup>
-      </Modal.Body>
-      <Modal.Footer>
-        {/* Save Button */}
-        <Button variant="success" onClick={handleSaveTask}>
-          Save
-        </Button>
-
-        <Button variant="secondary" onClick={closeModal}>
-          Close
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
 
   return (
     <div className="pomodoro-timer">
@@ -276,11 +224,7 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
       <Button variant="danger" onClick={resetTimer}>
         Reset
       </Button>
-      <Button variant="info" onClick={() => showTaskModal()}>
-        Edit Task
-      </Button>
       {modalType === "finish" && finishingModal()} {/* show finishing modal */}
-      {modalType === "task" && taskModal()}
     </div>
   );
 };
@@ -288,6 +232,10 @@ const PomodoroTimer = ({ loggedIn, detectNewTask }) => {
 PomodoroTimer.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   detectNewTask: PropTypes.func.isRequired,
+
+  // 从 App 中获取 当前的 Task 的两个信息
+  currentTask: PropTypes.object,
+  setCurrentTask: PropTypes.func,
 };
 
 export default PomodoroTimer;

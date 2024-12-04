@@ -23,6 +23,7 @@ import { jwtDecode } from "jwt-decode";
 import PomodoroTimer from "./PomodoroTimer";
 import TaskList from "./tasks/TaskList";
 import { useMessage } from "./message/MessageContext";
+import CurrentTaskView from "./tasks/currentTaskView";
 
 // Main App
 const App = () => {
@@ -38,6 +39,12 @@ const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   // const [user, setUser] = useState({}); // 存储用户信息
   const [refreshList, setRefreshList] = useState(""); // 存储任务列表
+
+  // 存在前端的 当前 Task 的两个信息
+  const [currentTask, setCurrentTask] = useState({
+    category: "",
+    detail: "",
+  });
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
@@ -272,17 +279,33 @@ const App = () => {
         </Row>
 
         {/* Pomodoro Timer */}
-        <Col className="mb-4">
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Pomodoro Timer</Card.Title>
-              <PomodoroTimer
-                loggedIn={loggedIn}
-                detectNewTask={setRefreshList}
-              />
-            </Card.Body>
-          </Card>
-        </Col>
+        <Row className="mb-4">
+          <Col>
+            <Card className="mb-4">
+              <Card.Body>
+                <Card.Title>Pomodoro Timer</Card.Title>
+                <PomodoroTimer
+                  loggedIn={loggedIn}
+                  detectNewTask={setRefreshList}
+                  // 当前的 Task 的两个信息
+                  currentTask={currentTask}
+                  setCurrentTask={setCurrentTask}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col>
+            <Card className="mb-4">
+              <Card.Body>
+                <Card.Title>Current Task</Card.Title>
+                <CurrentTaskView
+                  currentTask={currentTask}
+                  setCurrentTask={setCurrentTask}
+                />
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
 
         {/* Task List */}
         <Col className="mb-4">

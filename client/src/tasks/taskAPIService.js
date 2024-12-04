@@ -33,6 +33,16 @@ export const fetchUserTasks = async () => {
     }
 };
 
+// 获取现有的类别
+export const fetchExistingCategories = async () => {
+    const result = await fetchUserTasks();
+    if (result.error) {
+        return { error: true, message: 'Failed to fetch categories.' };
+    }
+    // 去重
+    return [...new Set(result.tasks.map((task) => task.category))];
+}
+
 // Save Task Api
 export const addTask = async (category, detail) => {
     const token = localStorage.getItem('token'); // 获取存储的 token
