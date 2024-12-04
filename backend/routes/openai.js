@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateTcoken, openai } = require("../controllers/authController"); // 导入注册控制器
+const { authenticateToken} = require("../utils/middlewares"); // 导入认证中间件
+const { openai } = require("../controllers/openaiController");
 
 // 定义 POST /addTask 路由
-router.post("/", authenticateTcoken, openai);
+router.post("/", authenticateToken, openai);
 
 module.exports = router;
