@@ -201,7 +201,30 @@ const editTask = async (req, res) => {
     }
 };
 
+const openai = async (req, res) => {
+    try{
+        const { prompt } = req.body;
+        const secretApiKey = process.env.OPENAI_SECRET_API_KEY;
+        const response = await axios.post(
+            "https://api.chatanywhere.org",
+            {
+                prompt: prompt,
+                model: "gpt-4o-mini",
+                max_tokens: 100,
+            },
+            {
+                headers: { 
+                    Authorization: `Bearer ${secretApiKey}}`,
+                },
+            }
+        );
 
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error("Error with OpenAI API:", error);
+        res.status(500).json({ error: "Failed to process request." });
+    }
+}
 
 
 

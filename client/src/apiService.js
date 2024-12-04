@@ -44,6 +44,20 @@ export const loginUser = async (username, password) => {
     }
 };
 
+export const getRecommends = async (userPrompt) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/openai`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: userPrompt }),
+    });
+
+    const data = await response.json();
+    return data;
+}
 
 // 获取测试 API
 export const fetchTestAPI = async () => {
