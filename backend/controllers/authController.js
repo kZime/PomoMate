@@ -202,29 +202,26 @@ const editTask = async (req, res) => {
 };
 
 const axios = require('axios');
+const OpenAI = require('openai');
+
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_SECRET_API_KEY,
+});
 
 const openai = async (req, res) => {
     try{
         const { prompt } = req.body;
-        const secretApiKey = process.env.OPENAI_SECRET_API_KEY;
-        const response = await axios.post(
-            "https://api.openai.com/v1/completions",
-            {
-                prompt: prompt,
-                model: "gpt-4o-mini",
-                max_tokens: 100,
-            },
-            {
-                headers: { 
-                    Authorization: `Bearer ${secretApiKey}}`,
-                },
-            }
-        );
+        const chatCompletion = await client.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
+        });
 
-        res.status(200).json(response.data);
+        const response = chatCompletion.choices[0].message.content;
+
+        res.status(200).json(response);
     } catch (error) {
         console.error("Error with OpenAI API:", error);
-        res.status(500).json({ error: "Failed to process request." });
+        res.status(500).json({ error: "Failed to process request.", error });
     }
 }
 
