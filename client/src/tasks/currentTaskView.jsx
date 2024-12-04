@@ -74,12 +74,14 @@ const CurrentTaskView = ({
 
       {/* 添加Task 信息 */}
 
-      <InputGroup
-        onChange={(e) =>
-          setCurrentTask({ ...currentTask, detail: e.target.value })
-        }
-      >
-        <Form.Control placeholder="Task Detail" />
+      <InputGroup>
+        <Form.Control
+          value={currentTask.detail}
+          onChange={(e) =>
+            setCurrentTask({ ...currentTask, detail: e.target.value })
+          }
+          placeholder="Task Detail"
+        />
       </InputGroup>
     </>
   );

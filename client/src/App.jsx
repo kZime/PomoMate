@@ -15,7 +15,7 @@ import {
 import {
   registerUser,
   loginUser,
-  sendPrompt,
+  askForNextTask,
   fetchTestAPI,
   fetchMongoDB,
 } from "./apiService";
@@ -230,11 +230,44 @@ const App = () => {
     </Modal>
   );
 
-  const getRecommendedTask = async () => {
-    const prompt = "我最近的10个任务中,第1个任务是Read React's official documentation on core concepts such as JSX, components, props, and state.，分类为：'Learning'。我最近的10个任务中,第2个任务是Use create-react-app or vite to create a new React project, ensuring Node.js and npm are properly installed.,分类为:Coding。我最近的10个任务中,第3个任务是Create a React component, such as a button displaying 'Hello, World!', and render it on the page.,分类为:Coding。请问我的下一个任务推荐是什么,用json格式如{detai:'task detail', category:'category'}";
-    const result = await sendPrompt(prompt);
-    console.log("AI result is:", result);
-  }
+  const [predictReason, setPredictReason] = useState("");
+
+  const callForNextTask = async () => {
+    try {
+      // 显示开始消息
+      showMessage({
+        type: "info",
+        message: "Request started...",
+      });
+
+      // 执行异步任务
+      const result = await askForNextTask();
+
+      // 显示成功消息
+      showMessage({
+        type: "success",
+        message: "Request completed successfully!",
+      });
+
+      // Parse the result string to object
+      const resultObj = JSON.parse(result);
+      setPredictReason(resultObj.predictReason);
+      setCurrentTask({
+        category: resultObj.category,
+        detail: resultObj.detail,
+      });
+      // DEBUG
+      console.log("Current task is:", currentTask);
+    } catch (error) {
+      // 显示错误消息
+      showMessage({
+        type: "error",
+        message: `Request failed: ${error.message}`,
+      });
+
+      console.error("Error:", error);
+    }
+  };
 
   return (
     <div className="App">
@@ -310,9 +343,12 @@ const App = () => {
                   setCurrentTask={setCurrentTask}
                 />
                 <br />
-                <Button variant="primary" onClick={getRecommendedTask}>
-                    Generate Next Task
-                  </Button>
+                <Button variant="primary" onClick={callForNextTask}>
+                  Generate Next Task
+                </Button>
+                <br />
+                {/* Show predict Reason from AI */}
+                <p>{predictReason}</p>
               </Card.Body>
             </Card>
           </Col>
@@ -328,23 +364,6 @@ const App = () => {
           </Card>
         </Col>
         {showAccountModal()}
-
-        {/* 测试消息按钮 */}
-        <Row>
-          <Col className="text-center">
-            <Button
-              variant="primary"
-              onClick={() =>
-                showMessage({
-                  type: "success",
-                  message: "This is a success message!",
-                })
-              }
-            >
-              Show Message
-            </Button>
-          </Col>
-        </Row>
       </Container>
     </div>
   );

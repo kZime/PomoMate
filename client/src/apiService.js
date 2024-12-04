@@ -44,7 +44,7 @@ export const loginUser = async (username, password) => {
     }
 };
 
-export const sendPrompt = async (userPrompt) => {
+export const askForNextTask = async () => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}/openai`, {
         method: 'POST',
@@ -52,7 +52,7 @@ export const sendPrompt = async (userPrompt) => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: userPrompt }),
+        body: ""
     });
 
     const data = await response.json();
