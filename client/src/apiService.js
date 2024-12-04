@@ -44,7 +44,7 @@ export const loginUser = async (username, password) => {
     }
 };
 
-export const getRecommends = async (userPrompt) => {
+export const sendPrompt = async (userPrompt) => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}/openai`, {
         method: 'POST',

@@ -15,6 +15,7 @@ const getTasksRouter = require("./routes/getTasks");
 const addTaskRouter = require("./routes/addTask");
 const deleteTaskRouter = require("./routes/deleteTask");
 const editTaskRouter = require("./routes/editTask");
+const openaiRouter = require("./routes/openai");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use("/getTasks", getTasksRouter);
 app.use("/addTask", addTaskRouter);
 app.use("/deleteTask", deleteTaskRouter);
 app.use("/editTask", editTaskRouter);
+app.use("/openai", openaiRouter);
 
 
 // catch 404 and forward to error handler

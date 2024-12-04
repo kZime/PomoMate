@@ -15,6 +15,7 @@ import {
 import {
   registerUser,
   loginUser,
+  sendPrompt,
   fetchTestAPI,
   fetchMongoDB,
 } from "./apiService";
@@ -229,6 +230,12 @@ const App = () => {
     </Modal>
   );
 
+  const getRecommendedTask = async () => {
+    const prompt = "我最近的10个任务中,第1个任务是Read React's official documentation on core concepts such as JSX, components, props, and state.，分类为：'Learning'。我最近的10个任务中,第2个任务是Use create-react-app or vite to create a new React project, ensuring Node.js and npm are properly installed.,分类为:Coding。我最近的10个任务中,第3个任务是Create a React component, such as a button displaying 'Hello, World!', and render it on the page.,分类为:Coding。请问我的下一个任务推荐是什么,用json格式如{detai:'task detail', category:'category'}";
+    const result = await sendPrompt(prompt);
+    console.log("AI result is:", result);
+  }
+
   return (
     <div className="App">
       {/* 导航栏，包含应用品牌和导航链接 */}
@@ -302,6 +309,10 @@ const App = () => {
                   currentTask={currentTask}
                   setCurrentTask={setCurrentTask}
                 />
+                <br />
+                <Button variant="primary" onClick={getRecommendedTask}>
+                    Generate Next Task
+                  </Button>
               </Card.Body>
             </Card>
           </Col>

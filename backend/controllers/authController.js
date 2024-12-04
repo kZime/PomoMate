@@ -201,12 +201,14 @@ const editTask = async (req, res) => {
     }
 };
 
+const axios = require('axios');
+
 const openai = async (req, res) => {
     try{
         const { prompt } = req.body;
         const secretApiKey = process.env.OPENAI_SECRET_API_KEY;
         const response = await axios.post(
-            "https://api.chatanywhere.org",
+            "https://api.openai.com/v1/completions",
             {
                 prompt: prompt,
                 model: "gpt-4o-mini",
@@ -228,4 +230,4 @@ const openai = async (req, res) => {
 
 
 
-module.exports = { register, login, authenticateTcoken, getTasks, addTask, deleteTask, editTask };
+module.exports = { register, login, authenticateTcoken, getTasks, addTask, deleteTask, editTask, openai };
