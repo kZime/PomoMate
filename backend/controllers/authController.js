@@ -87,7 +87,7 @@ const authenticateTcoken = async (req, res, next) => {
 // 控制器：查询用户任务
 const getTasks = async (req, res) => {
     try {
-        const userId = req.user.userId; // 从 token 解码信息中获取用户 ID
+        const userId = new mongoose.Types.ObjectId(req.user.userId); // 从 token 解码信息中获取用户 ID
         const user = await User.findById(userId, 'tasks'); // 查询任务字段
 
         if (!user) {
@@ -137,4 +137,32 @@ const addTask = async (req, res) => {
     }
   };
 
-module.exports = { register, login, authenticateTcoken, getTasks, addTask };
+  const deleteTask = async (req, res) => {
+    try {
+        const userId = new mongoose.Types.ObjectId(req.user.userId);
+        console.log("userId:", userId)
+        const { taskId } = req.body;
+        console.log("taskId:", taskId)
+
+        if (!userId || !taskId) {
+            return res.status(400).json({ success: false, message: "User ID and Task ID are required" });
+        }
+        const user = await User.findOneAndUpdate(
+            { _id: userId }, // 根据 userId 查找用户
+            { $pull: { tasks: { _id: taskId } } }, // 从 tasks 数组中删除指定 taskId 的任务
+            { new: true } // 返回更新后的文档
+          );
+      
+          if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+          }
+      
+          // 返回删除后的用户信息（包含更新后的 tasks 数组）
+          return res.status(200).json({ success: true, message: "Task deleted successfully", tasks: user.tasks });
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" }); 
+    }
+}
+
+module.exports = { register, login, authenticateTcoken, getTasks, addTask, deleteTask };

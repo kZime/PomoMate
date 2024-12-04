@@ -36,7 +36,7 @@ const App = () => {
   const [showModal, setShowModal] = useState(false); // 控制 Modal 是否显示
   const [modalType, setModalType] = useState("login"); // 控制 Modal 类型 ("login" 或 "register")
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState({}); // 存储用户信息
+  // const [user, setUser] = useState({}); // 存储用户信息
   const [refreshList, setRefreshList] = useState(""); // 存储任务列表
 
   const handleLogout = useCallback(() => {
@@ -71,7 +71,7 @@ const App = () => {
 
     if (token && user) {
       setLoggedIn(true);
-      setUser(user);
+      // setUser(user);
     }
 
     console.log("Updated");

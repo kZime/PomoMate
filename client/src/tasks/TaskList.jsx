@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { fetchUserTasks } from "./taskAPIService";
+import { fetchUserTasks, editTask, deleteTask } from "./taskAPIService";
 import PropTypes from 'prop-types';
 
 const TaskList = ({ refreshList }) => {
@@ -12,7 +12,7 @@ const TaskList = ({ refreshList }) => {
   // 获取任务数据
   const fetchTasks = async () => {
     const result = await fetchUserTasks();
-
+    console.log("fetched tasks", result)
         if (result.error) {
             // 如果出错，设置错误信息
             setErrorMessage(result.message);
@@ -29,7 +29,12 @@ const TaskList = ({ refreshList }) => {
   useEffect(() => {
     fetchTasks();
     // console.log("Updated task list because of new tasksResult")
-  }, [refreshList]); // 空依赖数组，表示只在组件挂载时执行一次
+  }, [refreshList]); 
+
+  useEffect(() => {
+    refreshCategoryDetails();
+    // console.log("Updated task list because of new tasksResult")
+  }, [tasks]); 
 
   // 计算类别列表，使用 useMemo 优化
   const categories = useMemo(() => {
@@ -52,22 +57,44 @@ const TaskList = ({ refreshList }) => {
   return formattedDate;
   }
 
+  const refreshCategoryDetails = () => {
+    const newCategoryDetails = tasks.reduce((categories, task) => {
+      // 如果任务的类别不存在于对象中，创建一个空数组
+      if (!categories[task.category]) {
+        categories[task.category] = [];
+      }
+      // 将任务添加到对应类别的数组中
+      categories[task.category].push(task);
+      return categories;
+    }, {});
+  
+    // 更新 state，设置所有类别的任务
+    setCategoryDetails(newCategoryDetails);
+    console.log("new category detail", categoryDetails)
+  };
+
   // 切换类别的展开与收起
   const handleCategoryToggle = (category) => {
     if (expandedCategory === category) {
       setExpandedCategory(null); // 如果当前类别已展开，则收起
     } else {
       setExpandedCategory(category); // 展开当前类别
-      // 如果是第一次展开，获取该类别的详细信息
-      if (!categoryDetails[category]) {
-        const tasksInCategory = tasks.filter(task => task.category === category);
-        setCategoryDetails(prevDetails => ({
-          ...prevDetails,
-          [category]: tasksInCategory
-        }));
-      }
     }
   };
+
+  const handleDelete = async (taskId) => {
+    // console.log("Deleting task with id:", id);
+    const result = await deleteTask(taskId); // 调用 deleteTask 函数删除任务
+
+    if (result.success) {
+      // 如果删除成功，刷新任务列表或从本地状态中移除已删除的任务
+      fetchTasks();
+      console.log("categoryDetails after delete:", categoryDetails);
+      // alert(result.message); // 显示删除成功的消息
+    } else {
+      alert(result.message); // 显示错误消息
+    }
+  }
 
   // 渲染任务列表
   return (
@@ -95,6 +122,7 @@ const TaskList = ({ refreshList }) => {
                               <tr>
                                 <th>Task</th>
                                 <th>Completion Time</th>
+                                <th>Actions</th> {/* Show New Button */}
                               </tr>
                             </thead>
                             <tbody>
@@ -102,6 +130,10 @@ const TaskList = ({ refreshList }) => {
                                 <tr key={task._id}>
                                   <td>{task.detail}</td>
                                   <td>{dateFormat(task.completedAt)}</td>
+                                  <td>
+                                    <button onClick={() => handleEdit(task._id)}>Edit</button> {/* Edit Button */}
+                                    <button onClick={() => handleDelete(task._id)}>Delete</button> {/* Delete Button */}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>

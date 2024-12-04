@@ -55,3 +55,47 @@ export const addTask = async (category, detail) => {
       return { success: false, message: 'Failed to add task.' };
   }
 };
+
+export const editTask = async (taskId, category, detail) => {
+    const token = localStorage.getItem('token'); 
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/editTask`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ taskId, category, detail }), 
+        });
+
+        const data = await response.json();
+        console.log("Edit data:",data); // Get data
+        return { success: true, message: "Task edited successfully!" };
+    } catch (error) {
+        console.error('Error editing task:', error);
+        return { success: false, message: 'Failed to edit task.' };
+    }
+}
+
+export const deleteTask = async (taskId) => {
+    const token = localStorage.getItem('token'); // 获取存储的 token
+
+    try{
+        const response = await fetch(`${API_BASE_URL}/deleteTask`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ taskId }),
+        });
+
+        const data = await response.json();
+        console.log("Delete data:",data); // Get data
+        return { success: true, message: "Task deleted successfully!" };
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        return { success: false, message: 'Failed to delete task.' };
+    }
+}
