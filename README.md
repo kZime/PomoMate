@@ -52,15 +52,15 @@ Integrating OpenAI API to generate information for tomato clock:
 
 - [x] 1.1 insert user to database
 - [x] 1.2 insert task to database
-- [ ] 1.3 edit task
+- [x] 1.3 edit task
 - [ ] 1.4 openai api, generate new task suggestion
 
 ### 2. frontend
 
 - [x] 2.1 show task history
-- [ ] 2.2 get existing tasks category from backend
-- [ ] 2.3 edit message after finish pomodoro
-- [ ] 2.4 new submit task logic:
+- [x] 2.2 get existing tasks category from backend
+- [x] 2.3 edit message after finish pomodoro
+- [x] 2.4 new submit task logic:
   - save in frontend, submit to backend after finish pomodoro
 - [ ] 2.5 openai api, generate new task suggestion
 - [ ] 2.6 *(Optional) Split the page into two parts: Pomodoro Timer Homepage and Task List Page*
