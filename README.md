@@ -22,6 +22,7 @@ Integrating OpenAI API to generate information for tomato clock:
 
 ## How to start
 
-1. Clone the repositorie to your local machine.
-2. Install the required dependencies by running `npm install` in both `./client` and `./backend` directory.
-3. Start the backend server by running `npm start` in both `./client` and `./backend` directory.
+
+0. Copy the `.env_sample` file to `.env` and fill in the values.
+1. Run `docker compose up` to start the application.
+2. BOOM! You can access the application at `http://localhost`.
