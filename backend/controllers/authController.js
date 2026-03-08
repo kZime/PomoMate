@@ -1,10 +1,16 @@
-import dotenv from "dotenv";
-
-dotenv.config(); // initialize dotenv
-
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { JWT_SECRET_KEY } from "../config/env.js";
+
+const DEMO_USERNAME = "demo_user";
+
+const buildToken = (user) =>
+    jwt.sign(
+        { userId: user._id, username: user.username },
+        JWT_SECRET_KEY,
+        { expiresIn: "30d" }
+    );
 
 // register controller
 export const register = async (req, res) => {
@@ -52,19 +58,35 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid password" });
         }
 
-        // get secret key from environment variable
-        const secretKey = process.env.JWT_SECRET_KEY; // replace with actual secret key
-
-        if (!secretKey) {
-            return res.status(500).json({ message: "Internal server error: Secret key is missing" });
-        }
-
         // generate JWT token
-        const token = jwt.sign({ userId: user._id, username: user.username }, secretKey, { expiresIn: "30d" });
+        const token = buildToken(user);
 
         res.status(200).json({ message: "Login successful", token });
     } catch (error) {
         console.error("Login error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const loginDemoUser = async (req, res) => {
+    try {
+        let user = await User.findOne({ username: DEMO_USERNAME });
+
+        if (!user) {
+            const hashedPassword = await bcrypt.hash(`demo-${Date.now()}`, 10);
+            user = await User.create({
+                username: DEMO_USERNAME,
+                hashed_password: hashedPassword,
+            });
+        }
+
+        const token = buildToken(user);
+        res.status(200).json({
+            message: "Demo login successful",
+            token,
+        });
+    } catch (error) {
+        console.error("Demo login error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -77,8 +99,7 @@ export const authenticateTcoken = async (req, res, next) => {
     }
 
     try {
-        const secretKey = process.env.JWT_SECRET_KEY;
-        const user = jwt.verify(token, secretKey); // replace to real password
+        const user = jwt.verify(token, JWT_SECRET_KEY); // replace to real password
         req.user = user; 
         next();
     } catch (error) {

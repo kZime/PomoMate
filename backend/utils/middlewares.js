@@ -1,5 +1,5 @@
-import "dotenv/config";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET_KEY } from "../config/env.js";
 
 export const authenticateToken = async (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1]; // 获取 Bearer Token
@@ -9,8 +9,7 @@ export const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET_KEY;
-    const user = jwt.verify(token, secretKey); // replace to real password
+    const user = jwt.verify(token, JWT_SECRET_KEY); // replace to real password
     req.user = user; 
     next();
   } catch (error) {

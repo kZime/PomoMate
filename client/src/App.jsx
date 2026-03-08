@@ -15,6 +15,7 @@ import {
 import {
   registerUser,
   loginUser,
+  loginDemoUser,
   askForNextTask,
   fetchTestAPI,
   fetchMongoDB,
@@ -112,6 +113,19 @@ const App = () => {
     setConfirmPassword("");
   };
 
+  const finishLogin = (token) => {
+    localStorage.setItem("token", token);
+    const decodedToken = jwtDecode(token);
+    const user = {
+      userId: decodedToken.userId,
+      username: decodedToken.username,
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    setLoggedIn(true);
+    closeModal();
+    setRefreshList(`login-${Date.now()}`);
+  };
+
   // 处理登录
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -122,17 +136,19 @@ const App = () => {
     }
     const token = result.token;
     if (token) {
-      localStorage.setItem("token", token);
-      const decodedToken = jwtDecode(token);
-      const user = {
-        userId: decodedToken.userId,
-        username: decodedToken.username,
-      };
-      localStorage.setItem("user", JSON.stringify(user));
-      setLoggedIn(true);
+      finishLogin(token);
     }
-    closeModal();
-    setRefreshList("login");
+  };
+
+  const handleDemoLogin = async () => {
+    const result = await loginDemoUser();
+    if (result.error) {
+      setLoginMessage(result.error);
+      return;
+    }
+    if (result.token) {
+      finishLogin(result.token);
+    }
   };
 
   const handleRegister = async (event) => {
@@ -214,9 +230,14 @@ const App = () => {
       <Modal.Footer>
         {/* register */}
         {modalType === "login" ? (
-          <Button variant="primary" onClick={handleLogin}>
-            Login
-          </Button>
+          <>
+            <Button variant="primary" onClick={handleLogin}>
+              Login
+            </Button>
+            <Button variant="outline-primary" onClick={handleDemoLogin}>
+              Try Demo Account
+            </Button>
+          </>
         ) : (
           <Button variant="primary" onClick={handleRegister}>
             Register

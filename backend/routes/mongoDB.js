@@ -1,9 +1,6 @@
-import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-
-// 初始化 dotenv 配置
-dotenv.config();
+import { MONGO_URI, hasCustomEnvValue } from "../config/env.js";
 
 const router = express.Router();
 
@@ -15,23 +12,19 @@ router.get("/", (req, res) => {
     res.send(databaseConnection);
 });
 
-// 从环境变量中读取 MongoDB URI
-const mongoURI = process.env.MONGO_URI;
-
-if (!mongoURI) {
-    console.error("MONGO_URI is not defined in the environment variables.");
-    databaseConnection = "MONGO_URI is missing. Please check environment configuration.";
-} else {
-    // 连接到 MongoDB
-    mongoose.connect(mongoURI)
-        .then(() => {
-            console.log("Connected to Database!");
-            databaseConnection = "Connected to Database";
-        })
-        .catch((error) => {
-            console.error("Database connection error:", error);
-            databaseConnection = "Error connecting to Database";
-        });
+if (!hasCustomEnvValue("MONGO_URI")) {
+    console.warn(`MONGO_URI is empty. Falling back to default: ${MONGO_URI}`);
 }
+
+// 连接到 MongoDB
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        console.log("Connected to Database!");
+        databaseConnection = "Connected to Database";
+    })
+    .catch((error) => {
+        console.error("Database connection error:", error);
+        databaseConnection = "Error connecting to Database";
+    });
 
 export default router;
