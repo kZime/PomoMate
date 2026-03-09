@@ -1,50 +1,73 @@
-/* src/components/Message/Message.css */
 .message {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 2018;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: messageSlideIn 0.3s ease;
+  max-width: 90vw;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
     opacity: 1;
-    transition: top 0.5s, opacity 0.5s ease-out;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .message--info {
-    background-color: #409eff;
-    color: white;
+  background-color: #3498db;
+  color: white;
 }
 
 .message--success {
-    background-color: #67c23a;
-    color: white;
+  background-color: #2ecc71;
+  color: white;
 }
 
 .message--warning {
-    background-color: #e6a23c;
-    color: white;
+  background-color: #f39c12;
+  color: white;
 }
 
 .message--error {
-    background-color: #f56c6c;
-    color: white;
+  background-color: #e74c3c;
+  color: white;
 }
 
 .message__icon {
-    margin-right: 10px;
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.message__content {
+  margin: 0;
+  font-weight: 500;
 }
 
 .message__close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 20px;
-    margin-left: 20px;
-    cursor: pointer;
-    outline: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  margin-left: 16px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.message__close:hover {
+  opacity: 1;
 }

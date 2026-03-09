@@ -1,45 +1,37 @@
-const API_BASE_URL = "http://localhost:9000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000";
 
-// 注册接口
 export const registerUser = async (username, password) => {
     try {
-        // 发起注册请求
         const response = await fetch(`${API_BASE_URL}/api/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
         });
 
-        // 解析响应数据
         const data = await response.json();
         if (!response.ok) {
             throw new Error(data.message || "Registration failed");
         }
-        return data; // 返回注册成功的信息或 token
+        return data;
     } catch (error) {
-        console.error(error);
         return { error: error.message };
     }
 };
 
-// 登录接口
 export const loginUser = async (username, password) => {
     try {
-        // 发起登录请求
         const response = await fetch(`${API_BASE_URL}/api/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
         });
 
-        // 解析响应数据
         const data = await response.json();
         if (!response.ok) {
             throw new Error(data.message || "Login failed");
         }
-        return data; // 返回登录成功的信息或 token
+        return data;
     } catch (error) {
-        console.error(error);
         return { error: error.message };
     }
 };
@@ -57,7 +49,6 @@ export const loginDemoUser = async () => {
         }
         return data;
     } catch (error) {
-        console.error(error);
         return { error: error.message };
     }
 };
@@ -75,30 +66,24 @@ export const askForNextTask = async () => {
 
     const data = await response.json();
     return data;
-}
+};
 
-// 获取测试 API
 export const fetchTestAPI = async () => {
     try {
-        // 发起测试请求
         const response = await fetch(`${API_BASE_URL}/test`);
         if (!response.ok) throw new Error("Failed to fetch API");
         return await response.text();
     } catch (error) {
-        console.error(error);
         return "Error fetching API data.";
     }
 };
 
-// 获取数据库连接状态
 export const fetchMongoDB = async () => {
     try {
-        // 发起数据库连接请求
         const response = await fetch(`${API_BASE_URL}/mongodb`);
         if (!response.ok) throw new Error("Failed to connect to MongoDB");
         return await response.text();
     } catch (error) {
-        console.error(error);
         return "Error connecting to MongoDB.";
     }
 };

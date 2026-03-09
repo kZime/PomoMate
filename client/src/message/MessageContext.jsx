@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
-import PropTypes from "prop-types"; // 引入 prop-types 库
-import Message from "./Message"; // 引入 Message 组件
+import PropTypes from "prop-types";
+import Message from "./Message";
 
 const MessageContext = createContext();
 
@@ -37,9 +37,8 @@ export const MessageProvider = ({ children }) => {
   );
 };
 
-// 添加 propTypes 以验证 props 的类型
 MessageProvider.propTypes = {
-  children: PropTypes.node.isRequired, // 验证 children 必须是可以渲染的 React 节点
+  children: PropTypes.node.isRequired,
 };
 
 export default MessageContext;

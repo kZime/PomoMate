@@ -1,111 +1,73 @@
+# PomoMate
 
-# PomoMate – A smart Pomodoro timer that helps you stay focused, organize tasks, and boost productivity with AI-driven suggestions
+A smart Pomodoro timer that helps you stay focused, organize tasks, and boost productivity with AI-driven suggestions.
 
-## Languages/Frameworks used 
- 
- React, Node.js, MongoDB
+## Tech Stack
 
-## Functionality
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite, React-Bootstrap, Recharts |
+| Backend | Node.js, Express |
+| Database | MongoDB 7, Mongoose |
+| AI | OpenAI API (GPT-4o-mini) |
+| Auth | JWT, bcrypt |
+| DevOps | Docker Compose, Nginx |
 
-- Users can register, login, and logout.
-- Users can create a tomato clock, setting the working time and pause time.
-- The tomato clock can add some note, tag or category after finishing.
-- Logged-in users can edit and delete their previous tomato clock.
-- Database contains Users, Tomato clocks with the necessary collections and fields to maintain the above functionality.
+## Features
 
+- **Pomodoro Timer** -- Circular progress ring with configurable work/break durations, sound alerts, and browser notifications
+- **Task Management** -- Create, edit, and delete tasks organized by category with expand/collapse groups
+- **AI Task Prediction** -- Uses OpenAI to analyze task history and suggest the next task with reasoning
+- **Productivity Dashboard** -- Bar chart (last 7 days) and pie chart (category distribution) powered by Recharts
+- **Dark Mode** -- Full dark/light theme toggle with CSS custom properties
+- **Demo Account** -- One-click demo login to explore the app without registration
+- **Responsive Design** -- Optimized for desktop and mobile viewports
 
-## Creative Portion  
-Integrating OpenAI API to generate information for tomato clock:
-
-- Users can submit content, which is processed by OpenAI API to generate relevant tags, format the notes, and select the category.
-- The AI can generate some suggestions next tomato clock for the user based on the work that has already been done, and the user can choose one of the suggestions to start the next Tomato Clock
-
-## How to start
-
-0. Copy the `.env_sample` file to `.env` and fill in the values.
-1. Run `docker compose up --build` to build and start the application.
-2. Open the frontend at `http://localhost:3000`.
-
-## Docker Deployment Architecture
-
-This project is deployed with Docker Compose and consists of three containers:
-
-- `frontend`: Vite app built into static files and served by Nginx.
-- `api`: Node.js/Express backend that handles authentication, tasks, and OpenAI requests.
-- `mongo`: MongoDB database used to persist application data.
+## Architecture
 
 ```text
 Browser
   |
   v
-frontend (Nginx, port 3000 on host -> 80 in container)
+Frontend (Nginx, port 3000)
   |
   v
-api (Express, port 9000 by default)
+API (Express, port 9000)
   |
   v
-mongo (MongoDB, port 27017 by default)
+MongoDB (port 27017)
 
-api ----> OpenAI API
+API ----> OpenAI API
 ```
 
-### Service Details
+All three services run as Docker containers orchestrated by Docker Compose, with health checks controlling startup order.
 
-| Service | Image/Build | Default Host Port | Purpose |
-| --- | --- | --- | --- |
-| `frontend` | built from `client/Dockerfile` | `3000` | Serves the React UI through Nginx |
-| `api` | built from `backend/Dockerfile` | `9000` | Runs the Express backend |
-| `mongo` | `mongo:7` | `27017` | Stores users, Pomodoro records, and related data |
+## Getting Started
 
-### Container Relationships
+1. Copy `.env_sample` to `.env` and fill in your `OPENAI_SECRET_API_KEY`
+2. Run:
 
-- The `frontend` container depends on the `api` container being healthy before it starts.
-- The `api` container depends on the `mongo` container being healthy before it starts.
-- The `api` container connects to MongoDB through the internal Docker network using `mongo` as the hostname.
-- MongoDB data is persisted through the named Docker volume `mongo-data`.
+```bash
+docker compose up --build
+```
+
+3. Open http://localhost:3000
 
 ### Environment Variables
 
-The Docker setup reads values from `.env` and also provides sensible defaults in `docker-compose.yml`.
+| Variable | Default | Required |
+|----------|---------|----------|
+| `OPENAI_SECRET_API_KEY` | -- | Yes |
+| `JWT_SECRET_KEY` | `replace-me` | Recommended |
+| `API_PORT` | `9000` | No |
+| `FRONTEND_PORT` | `3000` | No |
+| `MONGO_PORT` | `27017` | No |
+| `MONGO_URI` | `mongodb://mongo:27017/pomomate` | No |
 
-Required secrets:
-
-- `OPENAI_SECRET_API_KEY`: API key used for AI-powered suggestions and note processing.
-
-Optional overrides:
-
-- `API_PORT` default: `9000`
-- `FRONTEND_PORT` default: `3000`
-- `MONGO_PORT` default: `27017`
-- `MONGO_URI` default: `mongodb://mongo:27017/pomomate`
-- `MONGO_INITDB_DATABASE` default: `pomomate`
-- `JWT_SECRET_KEY` default: `replace-me`
-- `VITE_API_BASE_URL` default: `http://localhost:9000`
-
-If `MONGO_URI` or `JWT_SECRET_KEY` is missing or left empty, the backend falls back to the default values above.
-
-### Health Checks
-
-- `mongo` is considered healthy after responding to `db.runCommand({ ping: 1 })`.
-- `api` is considered healthy after responding successfully to `http://localhost:<API_PORT>/test`.
-- Compose uses these health checks to control startup order between services.
-
-### Common Docker Commands
-
-Start in detached mode:
+### Common Commands
 
 ```bash
-docker compose up -d --build
-```
-
-Stop the containers:
-
-```bash
-docker compose down
-```
-
-Stop the containers and remove the database volume:
-
-```bash
-docker compose down -v
+docker compose up -d --build   # Start in background
+docker compose down            # Stop containers
+docker compose down -v         # Stop and remove data
 ```

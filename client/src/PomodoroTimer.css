@@ -1,0 +1,160 @@
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.timer-ring-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+}
+
+.timer-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  stroke: var(--color-border);
+  transition: stroke var(--transition);
+}
+
+.timer-ring-progress {
+  transition: stroke-dashoffset 1s linear, stroke var(--transition);
+}
+
+.timer-running .timer-ring-wrapper {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.timer-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.timer-mode {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.timer-display {
+  font-size: 3.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.timer-btn {
+  min-width: 100px;
+  font-weight: 600;
+}
+
+.timer-settings {
+  display: flex;
+  gap: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.timer-setting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timer-setting label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  min-width: 38px;
+}
+
+.timer-setting-unit {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.stepper button {
+  background: var(--color-surface);
+  border: none;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+
+.stepper button:hover {
+  background: var(--color-surface-hover);
+}
+
+.stepper-input {
+  width: 48px !important;
+  text-align: center;
+  border: none !important;
+  border-left: 1px solid var(--color-border) !important;
+  border-right: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  padding: 0.25rem !important;
+  font-size: 0.9rem;
+  -moz-appearance: textfield;
+  background: var(--color-surface) !important;
+}
+
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .timer-ring-wrapper {
+    width: 200px;
+    height: 200px;
+  }
+
+  .timer-display {
+    font-size: 2.5rem;
+  }
+
+  .timer-settings {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

@@ -1,104 +1,131 @@
-import { useState, useEffect, useRef } from "react";
-import { Modal, Button, InputGroup, Form } from "react-bootstrap";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Modal, Button, Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useMessage } from "./message/MessageContext";
 import { addTask } from "./tasks/taskAPIService";
+import "./PomodoroTimer.css";
 
-// PomodoroTimer
-const PomodoroTimer = ({
-  loggedIn,
-  detectNewTask,
+const DEFAULT_WORK_MINUTES = 25;
+const DEFAULT_BREAK_MINUTES = 5;
 
-  // 从 App 中获取 当前的 Task 的两个信息
-  currentTask,
-  setCurrentTask,
-}) => {
-  // Default state values
-  const [time, setTime] = useState(2); // TODO: Default to 2 for testing
+const PomodoroTimer = ({ loggedIn, detectNewTask, currentTask, setCurrentTask }) => {
+  const [totalSeconds, setTotalSeconds] = useState(DEFAULT_WORK_MINUTES * 60);
+  const [time, setTime] = useState(DEFAULT_WORK_MINUTES * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("work");
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState(null);
-  const timerRef = useRef(null); // Timer reference
+  const [workMinutes, setWorkMinutes] = useState(DEFAULT_WORK_MINUTES);
+  const [breakMinutes, setBreakMinutes] = useState(DEFAULT_BREAK_MINUTES);
+  const timerRef = useRef(null);
   const { showMessage } = useMessage();
   const [getNewTask, setGetNewTask] = useState("newTask1");
 
-  const refreshList = () => {
-    setGetNewTask(getNewTask === "newTask1" ? "newTask2" : "newTask1");
-  };
-  // 只在 isRunning 变化时启动或清除计时器
+  const refreshList = useCallback(() => {
+    setGetNewTask((prev) => (prev === "newTask1" ? "newTask2" : "newTask1"));
+  }, []);
+
   useEffect(() => {
     if (isRunning) {
-      startTimer(); // 如果正在运行，则启动计时器
+      timerRef.current = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerRef.current);
+            setIsRunning(false);
+            setShowModal(true);
+            playAlarmSound();
+            sendNotification();
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
     } else {
-      clearInterval(timerRef.current); // 如果不再运行，则停止计时器
+      clearInterval(timerRef.current);
     }
-    // 在组件卸载时清除计时器
     return () => clearInterval(timerRef.current);
-  }, [isRunning]); // 触发条件
+  }, [isRunning]);
 
   useEffect(() => {
     detectNewTask(getNewTask);
   }, [getNewTask, detectNewTask]);
 
-  const startTimer = () => {
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime <= 1) {
-          // 当时间结束时停止计时器
-          clearInterval(timerRef.current);
-          setIsRunning(false);
-
-          // 显示选择对话框
-          setShowModal(true);
-          setModalType("finish");
-
-          return 0;
-        }
-        return prevTime - 1;
+  const playAlarmSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const frequencies = [523, 659, 784]; // C5, E5, G5
+      frequencies.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.4);
+        osc.start(ctx.currentTime + i * 0.2);
+        osc.stop(ctx.currentTime + i * 0.2 + 0.4);
       });
-    }, 1000);
+    } catch {
+      // Audio not available
+    }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setModalType(null);
+  const sendNotification = () => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("PomoMate", {
+        body: mode === "work" ? "Work session complete! Time for a break." : "Break is over! Ready to focus?",
+      });
+    }
   };
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const closeModal = () => setShowModal(false);
 
   const startNewMode = (newMode) => {
-    // 先关闭模态框
     closeModal();
-
-    // 根据用户选择的模式切换状态
     setMode(newMode);
-    setTime(formatTimerLengthToSecond()); // DEBUG: 使用测试时间
-
-    // 触发计时器
+    const seconds = newMode === "work" ? workMinutes * 60 : breakMinutes * 60;
+    setTotalSeconds(seconds);
+    setTime(seconds);
     setIsRunning(true);
   };
 
   const toggleTimer = () => {
-    setIsRunning((prevIsRunning) => {
-      if (prevIsRunning) {
-        clearInterval(timerRef.current);
-      }
-      return !prevIsRunning;
+    setIsRunning((prev) => {
+      if (prev) clearInterval(timerRef.current);
+      return !prev;
     });
-  };
-
-  const [timerLength, setTimerLength] = useState("25:00");
-
-  const formatTimerLengthToSecond = () => {
-    const [mins, secs] = timerLength.split(":");
-    return parseInt(mins) * 60 + parseInt(secs);
   };
 
   const resetTimer = () => {
     clearInterval(timerRef.current);
-    setTime(formatTimerLengthToSecond());
+    const seconds = mode === "work" ? workMinutes * 60 : breakMinutes * 60;
+    setTotalSeconds(seconds);
+    setTime(seconds);
     setIsRunning(false);
-    setMode("work");
+  };
+
+  const handleWorkMinutesChange = (value) => {
+    const mins = Math.max(1, Math.min(120, parseInt(value) || 1));
+    setWorkMinutes(mins);
+    if (mode === "work" && !isRunning) {
+      setTime(mins * 60);
+      setTotalSeconds(mins * 60);
+    }
+  };
+
+  const handleBreakMinutesChange = (value) => {
+    const mins = Math.max(1, Math.min(30, parseInt(value) || 1));
+    setBreakMinutes(mins);
+    if (mode === "break" && !isRunning) {
+      setTime(mins * 60);
+      setTotalSeconds(mins * 60);
+    }
   };
 
   const formatTime = (seconds) => {
@@ -107,142 +134,185 @@ const PomodoroTimer = ({
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // mode == work or break
-  const finishingModal = () => (
-    <Modal show={showModal} onHide={closeModal}>
+  const progress = totalSeconds > 0 ? (totalSeconds - time) / totalSeconds : 0;
+  const radius = 120;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
+  const progressColor = mode === "work" ? "var(--color-primary)" : "var(--color-break)";
+
+  const handleSaveTask = async () => {
+    if (!currentTask.category || !currentTask.detail) {
+      showMessage({
+        type: "error",
+        message: "Please fill in both category and detail before saving.",
+      });
+      return false;
+    }
+
+    const result = await addTask(currentTask.category, currentTask.detail);
+    if (result.success) {
+      showMessage({ type: "success", message: "Task saved!" });
+    } else {
+      showMessage({ type: "error", message: result.message });
+    }
+    setCurrentTask({ category: "", detail: "" });
+    refreshList();
+    return result.success;
+  };
+
+  const finishingModal = (
+    <Modal show={showModal} onHide={closeModal} centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          {mode === "work" ? "Work Time is over" : "Break Time is over"}
+          {mode === "work" ? "Work Session Complete!" : "Break Time Over!"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {mode === "work"
-          ? "Work time is over, select your next action."
-          : "Break time is over, select your next action."}
+        <p>
+          {mode === "work"
+            ? "Great work! Choose what to do next."
+            : "Break is over. Ready to get back to work?"}
+        </p>
         {!loggedIn && (
-          <div className="alert alert-warning mt-3">
-            You need to login to use this feature.
+          <div className="alert alert-warning">
+            Log in to save your completed tasks.
           </div>
         )}
       </Modal.Body>
       <Modal.Footer>
         {mode === "work" ? (
-          // work time is over
           <>
-            {/* 提交任务并跳过休息时间 */}
-            <Button
-              variant="success"
-              onClick={async () => {
-                const success = await handleSaveTask();
-                if (success) {
-                  startNewMode("work");
-                  closeModal();
-                  // console.log("handleSaveTask success");
-                } else {
-                  // console.log("handleSaveTask failed");
-                }
-              }}
-            >
-              Submit task and start new Task
-            </Button>
-            {/* 开始休息时间 */}
+            {loggedIn && (
+              <Button
+                variant="success"
+                onClick={async () => {
+                  const success = await handleSaveTask();
+                  if (success) startNewMode("work");
+                }}
+              >
+                Save & Start New
+              </Button>
+            )}
             <Button variant="primary" onClick={() => startNewMode("break")}>
-              Start break
-            </Button>
-            <Button variant="secondary" onClick={closeModal}>
-              Close
+              Take a Break
             </Button>
           </>
         ) : (
-          // break time is over
-          // mode == break
           <>
-            <Button
-              variant="success"
-              onClick={async () => {
-                const success = await handleSaveTask();
-                if (success) {
-                  startNewMode("work");
-                  closeModal();
-                  // console.log("handleSaveTask success");
-                } else {
-                  // console.log("handleSaveTask failed");
-                }
-              }}
-            >
-              Start new task and save task
+            {loggedIn && (
+              <Button
+                variant="success"
+                onClick={async () => {
+                  const success = await handleSaveTask();
+                  if (success) startNewMode("work");
+                }}
+              >
+                Save & Start Work
+              </Button>
+            )}
+            <Button variant="primary" onClick={() => startNewMode("work")}>
+              Start Working
             </Button>
-            {/* Break again! */}
-            <Button variant="primary" onClick={() => startNewMode("break")}>
-              Break again!
-            </Button>
-            <Button variant="secondary" onClick={closeModal}>
-              Close
+            <Button variant="outline-secondary" onClick={() => startNewMode("break")}>
+              More Break
             </Button>
           </>
         )}
+        <Button variant="outline-secondary" onClick={closeModal}>
+          Close
+        </Button>
       </Modal.Footer>
     </Modal>
   );
 
-  // 存在前端的 新的 Task 的两个信息
-
-  const handleSaveTask = async () => {
-    // 如果当前任务为空，则不保存
-    if (!currentTask.category || !currentTask.detail) {
-      showMessage({
-        type: "error",
-        message:
-          "Task was submitted or not edited. Please close this modal, edit Current Task and try again.",
-      });
-      return false;
-    }
-
-    // console.log("handleSaveTask keep going");
-
-    const result = await addTask(currentTask.category, currentTask.detail);
-    if (result.success) {
-      // if success, show message
-      showMessage({
-        type: "success",
-        message: "Task saved successfully!",
-      });
-    } else {
-      // if failed, show message
-      showMessage({
-        type: "error",
-        message: result.message,
-      });
-    }
-    // 清除当前任务
-    setCurrentTask({ category: "", detail: "" });
-
-    refreshList();
-    return result.success;
-  };
-
   return (
-    <div className="pomodoro-timer">
-      <h2>{mode === "work" ? "Work Time" : "Break Time"}</h2>
-      <h1>{formatTime(time)}</h1>
-      <Button variant={isRunning ? "info" : "success"} onClick={toggleTimer}>
-        {isRunning ? "Pause" : "Start"}
-      </Button>
-      <Button variant="danger" onClick={resetTimer}>
-        Reset
-      </Button>
-      <InputGroup>
-        <InputGroup.Text>new timer length:</InputGroup.Text>
+    <div className="timer-container">
+      <div className={`timer-ring-wrapper ${isRunning ? "timer-running" : ""}`}>
+        <svg className="timer-ring" viewBox="0 0 280 280">
+          <circle
+            className="timer-ring-bg"
+            cx="140"
+            cy="140"
+            r={radius}
+            fill="none"
+            strokeWidth="8"
+          />
+          <circle
+            className="timer-ring-progress"
+            cx="140"
+            cy="140"
+            r={radius}
+            fill="none"
+            strokeWidth="8"
+            strokeLinecap="round"
+            style={{
+              strokeDasharray: circumference,
+              strokeDashoffset,
+              stroke: progressColor,
+            }}
+          />
+        </svg>
+        <div className="timer-center">
+          <div className="timer-mode">{mode === "work" ? "FOCUS" : "BREAK"}</div>
+          <div className="timer-display">{formatTime(time)}</div>
+        </div>
+      </div>
 
-        <Form.Control
-          placeholder={timerLength}
-          onChange={(e) => {
-              setTimerLength(e.target.value);
-              console.log("update timerLength to:", timerLength);
-          }}
-        />
-      </InputGroup>
-      {modalType === "finish" && finishingModal()} {/* show finishing modal */}
+      <div className="timer-controls">
+        <Button
+          variant={isRunning ? "outline-secondary" : "primary"}
+          size="lg"
+          onClick={toggleTimer}
+          className="timer-btn"
+        >
+          {isRunning ? "Pause" : "Start"}
+        </Button>
+        <Button
+          variant="outline-secondary"
+          size="lg"
+          onClick={resetTimer}
+          className="timer-btn"
+        >
+          Reset
+        </Button>
+      </div>
+
+      <div className="timer-settings">
+        <div className="timer-setting">
+          <label>Work</label>
+          <div className="stepper">
+            <button onClick={() => handleWorkMinutesChange(workMinutes - 1)}>-</button>
+            <Form.Control
+              type="number"
+              value={workMinutes}
+              onChange={(e) => handleWorkMinutesChange(e.target.value)}
+              min="1"
+              max="120"
+              className="stepper-input"
+            />
+            <button onClick={() => handleWorkMinutesChange(workMinutes + 1)}>+</button>
+          </div>
+          <span className="timer-setting-unit">min</span>
+        </div>
+        <div className="timer-setting">
+          <label>Break</label>
+          <div className="stepper">
+            <button onClick={() => handleBreakMinutesChange(breakMinutes - 1)}>-</button>
+            <Form.Control
+              type="number"
+              value={breakMinutes}
+              onChange={(e) => handleBreakMinutesChange(e.target.value)}
+              min="1"
+              max="30"
+              className="stepper-input"
+            />
+            <button onClick={() => handleBreakMinutesChange(breakMinutes + 1)}>+</button>
+          </div>
+          <span className="timer-setting-unit">min</span>
+        </div>
+      </div>
+
+      {finishingModal}
     </div>
   );
 };
@@ -250,8 +320,6 @@ const PomodoroTimer = ({
 PomodoroTimer.propTypes = {
   loggedIn: PropTypes.bool.isRequired,
   detectNewTask: PropTypes.func.isRequired,
-
-  // 从 App 中获取 当前的 Task 的两个信息
   currentTask: PropTypes.object,
   setCurrentTask: PropTypes.func,
 };
