@@ -44,6 +44,10 @@ All three services run as Docker containers orchestrated by Docker Compose, with
 
 ## Getting Started
 
+### Option 1: Docker Compose (Recommended)
+
+The easiest way to run the full stack. Requires [Docker](https://docs.docker.com/get-docker/) installed.
+
 1. Copy `.env_sample` to `.env` and fill in your `OPENAI_SECRET_API_KEY`
 2. Run:
 
@@ -53,21 +57,47 @@ docker compose up --build
 
 3. Open http://localhost:3000
 
-### Environment Variables
-
-| Variable | Default | Required |
-|----------|---------|----------|
-| `OPENAI_SECRET_API_KEY` | -- | Yes |
-| `JWT_SECRET_KEY` | `replace-me` | Recommended |
-| `API_PORT` | `9000` | No |
-| `FRONTEND_PORT` | `3000` | No |
-| `MONGO_PORT` | `27017` | No |
-| `MONGO_URI` | `mongodb://mongo:27017/pomomate` | No |
-
-### Common Commands
+Common commands:
 
 ```bash
 docker compose up -d --build   # Start in background
 docker compose down            # Stop containers
 docker compose down -v         # Stop and remove data
 ```
+
+### Option 2: Run Without Docker
+
+Requires Node.js 18+ and a running MongoDB instance.
+
+1. Copy `.env_sample` to `.env` and fill in the values. Set `MONGO_URI` to your local MongoDB (e.g. `mongodb://localhost:27017/pomomate`).
+
+2. Start the backend:
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+The API server will start on http://localhost:9000.
+
+3. In a separate terminal, start the frontend:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+The Vite dev server will start on http://localhost:5173. The frontend connects to the API at the URL defined by `VITE_API_BASE_URL` (defaults to `http://localhost:9000`).
+
+### Environment Variables
+
+| Variable | Default | Required |
+|----------|---------|----------|
+| `OPENAI_SECRET_API_KEY` | -- | Yes |
+| `JWT_SECRET_KEY` | `replace-me` | Recommended |
+| `MONGO_URI` | `mongodb://mongo:27017/pomomate` | Yes (non-Docker: use `localhost`) |
+| `API_PORT` | `9000` | No |
+| `FRONTEND_PORT` | `3000` | No |
+| `MONGO_PORT` | `27017` | No |

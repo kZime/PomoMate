@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { register, login, loginDemoUser } from "../controllers/authController.js"; // 导入注册控制器
+import { register, login, loginDemoUser } from "../controllers/authController.js";
 
 
 router.post("/register", register);

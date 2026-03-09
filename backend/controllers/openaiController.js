@@ -9,10 +9,8 @@ const client = new OpenAI({
 export const predictTask = async (req, res) => {
     try {
         const userId = new mongoose.Types.ObjectId(req.user.userId);
-
         const tasks = await getUserTasks(userId);
 
-        // 只保留 category, detail 和 completedAt
         const tasks_content = tasks.map(task => ({
             category: task.category,
             detail: task.detail,
@@ -20,10 +18,6 @@ export const predictTask = async (req, res) => {
         }));
 
         const currentTime = new Date().toISOString();
-
-        // DEBUG
-        // console.log(tasks_content);
-        // console.log(currentTime);
 
         const prompt = `The current time is ${currentTime}. 
         Here is my history of tasks: ${JSON.stringify(tasks_content)}. 
@@ -45,7 +39,6 @@ export const predictTask = async (req, res) => {
         });
 
         const response = chatCompletion.choices[0].message.content;
-
         res.status(200).json(response);
     } catch (error) {
         console.error("Error with OpenAI API:", error);

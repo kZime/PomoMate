@@ -9,7 +9,7 @@ type: "success" | "info" | "warning" | "error"
 example:
 
 ```jsx
-        {/* DEBUG: 测试消息 */}
+        {/* Example: show a test message */}
         <Button
           variant="info"
           onClick={() =>
