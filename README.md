@@ -89,7 +89,7 @@ npm install
 npm run dev
 ```
 
-The Vite dev server will start on http://localhost:5173. The frontend connects to the API at the URL defined by `VITE_API_BASE_URL` (defaults to `http://localhost:9000`).
+The Vite dev server will start on http://localhost:5173. The frontend connects to the API at the URL defined by `VITE_API_BASE_URL` (defaults to `/api` in Docker with Nginx proxy, and can be set to `http://localhost:9000` for local dev).
 
 ### Environment Variables
 
