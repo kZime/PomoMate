@@ -8,7 +8,7 @@ export const fetchUserTasks = async () => {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/task/get`, {
+        const response = await fetch(`${API_BASE_URL}/task/get`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -38,7 +38,7 @@ export const addTask = async (category, detail) => {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/task/add`, {
+      const response = await fetch(`${API_BASE_URL}/task/add`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export const editTask = async (taskId, category, detail) => {
     const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/task/edit`, {
+        const response = await fetch(`${API_BASE_URL}/task/edit`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,7 +78,7 @@ export const deleteTask = async (taskId) => {
     const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/task/delete`, {
+        const response = await fetch(`${API_BASE_URL}/task/delete`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,

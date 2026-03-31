@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const registerUser = async (username, password) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/user/register`, {
+        const response = await fetch(`${API_BASE_URL}/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -20,7 +20,7 @@ export const registerUser = async (username, password) => {
 
 export const loginUser = async (username, password) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+        const response = await fetch(`${API_BASE_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -38,7 +38,7 @@ export const loginUser = async (username, password) => {
 
 export const loginDemoUser = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/user/demo-login`, {
+        const response = await fetch(`${API_BASE_URL}/user/demo-login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         });
@@ -55,7 +55,7 @@ export const loginDemoUser = async () => {
 
 export const askForNextTask = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE_URL}/api/openai/predictTask`, {
+    const response = await fetch(`${API_BASE_URL}/openai/predictTask`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
