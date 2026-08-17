@@ -5,6 +5,7 @@ services:
       target: production
     image: pomomate-backend
     restart: unless-stopped
+    init: true
     environment:
       NODE_ENV: production
       PORT: ${API_PORT:-9000}
@@ -29,6 +30,7 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    init: true
     environment:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-pomomate}
     ports:
